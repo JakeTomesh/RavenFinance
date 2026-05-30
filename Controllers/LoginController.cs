@@ -4,14 +4,14 @@ using System.Diagnostics;
 
 namespace RavenFinance.Controllers
 {
-    public class HomeController : Controller
+    public class LoginController : Controller
     {
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Register()
         {
             return View();
         }
