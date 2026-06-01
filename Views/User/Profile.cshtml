@@ -1,0 +1,52 @@
+﻿@model RavenFinance.Models.User;
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div>
+    <h1>User Profile</h1>
+</div>
+@if (ViewBag.ErrorMessage != null)
+{
+    <div>
+        <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+    </div>
+}
+@if (ViewBag.SuccessMessage != null)
+{
+    <div>
+        <span class="text-success fw-bold">@ViewBag.SuccessMessage</span>
+    </div>
+}
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+    
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        
+        <input type="hidden" asp-for="Id" />
+
+        
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" type="email" readonly />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        
+        <div class="mb-3">
+        <label asp-for="FirstName" class="form-label">First Name</label>
+        <input asp-for="FirstName" class="form-control" readonly />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        
+        <div class="mb-3">
+        <label asp-for="LastName" class="form-label">Last Name</label>
+        <input asp-for="LastName" class="form-control" readonly />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+        
+</div>
+<div>
+    <form asp-action="EditProfile" asp-controller="User" method="get">
+        <button type="submit" class="btn btn-warning">Edit Profile</button>
+    </form>
+</div>

@@ -1,0 +1,76 @@
+﻿using Microsoft.EntityFrameworkCore;
+using RavenFinance.Data;
+using System.Text.RegularExpressions;
+
+namespace RavenFinance.Models
+{
+    public static class HelperUser
+    {
+        public static int GetUserFromSession(HttpContext httpContext)
+        {
+            int? userId = httpContext.Session.GetInt32("UserId");
+            if (userId.HasValue)
+            {
+                return userId.Value;
+            }
+            throw new InvalidOperationException("User ID not found in session.");
+        }
+
+        public static User IsValidLogin(RavenDbContext context, string Email, string Password)
+        {
+            if(Email != null && Password != null)
+            {
+                // Check if the email and password match a user in the database
+                var user = context.Users.FirstOrDefault(u => u.Email == Email && u.Password == Password);
+                return user;
+            }
+
+            return null;
+        }
+
+        public static User ValidateRegister(RavenDbContext context, string Email, string Password, string FirstName, string LastName)
+        {
+            if (Email == null || Password == null)
+            {
+                throw new ArgumentNullException("Email and Password cannot be null");
+            }
+
+            bool isValidEmail = Regex.IsMatch(Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            if (!isValidEmail)
+            {
+                throw new ArgumentException("Invalid email format. Please provide a valid email address.", nameof(Email));
+            }
+
+            var existingUser = context.Users.FirstOrDefault(u => u.Email == Email);
+            if (existingUser != null)
+            {
+                throw new InvalidOperationException("An account with this email address already exists.");
+            }
+            // If the email is valid and not already in use, create a new user
+            //hash password here before saving to database !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            var newUser = new User
+            {
+                FirstName = FirstName,
+                LastName = LastName,
+                Email = Email,
+                Password = Password
+            };
+            context.Users.Add(newUser);
+            context.SaveChanges();
+            return newUser;
+        }
+
+        public static User GetUserById(RavenDbContext context, int id)
+        {
+            try
+            {
+                var user = context.Users.FirstOrDefault(u => u.Id == id);
+                return user;
+            }catch (Exception ex)
+            {
+                throw new Exception("User not found with the provided ID.", ex);
+            }
+            
+        }
+    }
+}

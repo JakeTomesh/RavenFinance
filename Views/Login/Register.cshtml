@@ -1,8 +1,36 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model RavenFinance.Models.User;
 @{
 }
 <div>
 	<h1>Register</h1>
+</div>
+<div>
+    @{
+        if(ViewBag.ErrorMessage != null)
+        {
+            <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+        }
+    }
+</div>
+<div>
+    <form asp-action="Register" asp-controller="Login" method="post">
+        <div>
+            <label asp-for="FirstName">First Name:</label>
+            <input asp-for="FirstName" class="form-control" />
+        </div>
+        <div>
+            <label asp-for="LastName">Last Name:</label>
+            <input asp-for="LastName" class="form-control" />
+        </div>
+        <div>
+            <label asp-for="Email">Email:</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+        <div>
+            <label asp-for="Password">Password:</label>
+            <input asp-for="Password" class="form-control" type="password" />
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
 </div>

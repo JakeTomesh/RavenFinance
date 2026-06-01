@@ -1,0 +1,50 @@
+﻿
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div>
+    <h1>@ViewData["Title"]</h1>
+</div>
+@if (ViewBag.ErrorMessage != null)
+{
+    <div>
+        <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+    </div>
+}
+@if (ViewBag.SuccessMessage != null)
+{
+    <div>
+        <span class="text-success fw-bold">@ViewBag.SuccessMessage</span>
+    </div>
+}
+<div>
+    <p>CONTROLS</p>
+    <form asp-controller="Dashboard" asp-action="MonthlyBills" method="get">
+        <button class="btn btn-danger">Monthly Bills</button>
+    </form>
+    <button class="btn btn-success">SAVINGS</button>
+    <button class="btn btn-warning">CATEGORIES</button>
+    <button class="btn btn-info">INCOME</button>
+    <button class="btn btn-secondary">CREDIT LINES</button>
+
+</div>
+<div class="dashboard-container">
+    <h2>VISUAL SUMMARY OF MONTHLY FINANCES</h2>
+    <div class="container-fluid">
+        <div class="border col-md-4">
+            <p>MONTHLY BILLS</p>
+        </div>
+        <div class="border col-md-6">
+            <p>CATEGORY TOTALS</p>
+        </div>
+        <div class="border">
+            <p>SAVINGS GOALS/TOTALS</p>
+        </div>
+        <div class="border">
+            <p>INCOME TOTALS</p>
+        </div>
+        <div class="border">
+            <p>LINES OF CREDIT W/ TOTALS</p>
+        </div>
+    </div>
+</div>
