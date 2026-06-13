@@ -46,6 +46,16 @@ namespace RavenFinance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "jacobtomesh2@gmail.com",
+                            FirstName = "Jake",
+                            LastName = "Tomesh",
+                            Password = "sesame"
+                        });
                 });
 #pragma warning restore 612, 618
         }

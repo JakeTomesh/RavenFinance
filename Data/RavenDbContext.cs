@@ -17,12 +17,16 @@ namespace RavenFinance.Data
         {
             base.OnModelCreating(modelBuilder);
             // Configure the User entity
-            modelBuilder.Entity<User>(entity =>
+            modelBuilder.Entity<User>().HasData(
+            new User
             {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Email).IsRequired();
-                entity.Property(e => e.Password).IsRequired();
-            });
+                UserId = 1,
+                FirstName = "Jake",
+                LastName = "Tomesh",
+                Email = "jacobtomesh2@gmail.com",
+                Password = "sesame"
+            }
+        );
         }
     } 
 }
