@@ -18,12 +18,20 @@
     </div>
 }
 <div>
+<div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <span class="text-success fw-bold">@TempData["SuccessMessage"]</span>
+    }
+</div>
     <p>CONTROLS</p>
-    <form asp-controller="Dashboard" asp-action="MonthlyBills" method="get">
-        <button class="btn btn-danger">Monthly Bills</button>
+    <form asp-controller="Dashboard" asp-action="RecurringBills" method="get">
+        <button class="btn btn-danger">MONTHLY RECURRING BILLS</button>
     </form>
     <button class="btn btn-success">SAVINGS</button>
-    <button class="btn btn-warning">CATEGORIES</button>
+    <form asp-controller="Category" asp-action="Index" method="get">
+        <button class="btn btn-warning">CATEGORIES</button>
+    </form>
     <button class="btn btn-info">INCOME</button>
     <button class="btn btn-secondary">CREDIT LINES</button>
 
@@ -32,7 +40,7 @@
     <h2>VISUAL SUMMARY OF MONTHLY FINANCES</h2>
     <div class="container-fluid">
         <div class="border col-md-4">
-            <p>MONTHLY BILLS</p>
+            <p>MONTHLY RECURRING BILLS</p>
         </div>
         <div class="border col-md-6">
             <p>CATEGORY TOTALS</p>

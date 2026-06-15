@@ -42,26 +42,24 @@ namespace RavenFinance.Controllers
         }
 
         [HttpGet]
-        public IActionResult MonthlyBills()
+        public IActionResult RecurringBills()
         {
             //gather monthly bill info from database and pass to view
             var userId = HelperUser.GetUserFromSession(HttpContext);
-            if(userId != null)
+            if(userId > 0)
             {
                 try
                 {
-                    return View();
+                    var userRecurringBills = HelperUser.GetRecurringBillsByUserId(dbContext, userId);
+                    return View("RecurringBills", userRecurringBills);
                 }catch (Exception ex)
                 {
                     ViewBag.ErrorMessage = "An error occurred while retrieving the monthly bills: " + ex.Message;
                     return View("Index");
                 }
             }
-
-            return View();
-
-            //search on userId 
-
+            ViewBag.ErrorMessage = "User not found.";
+            return View("Index");
         }
     }
 }

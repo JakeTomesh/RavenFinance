@@ -12,21 +12,21 @@ namespace RavenFinance.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<RecurringBill> RecurringBills { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-            // Configure the User entity
-            modelBuilder.Entity<User>().HasData(
-            new User
-            {
-                UserId = 1,
-                FirstName = "Jake",
-                LastName = "Tomesh",
-                Email = "jacobtomesh2@gmail.com",
-                Password = "sesame"
-            }
-        );
+            modelBuilder.Entity<StatementItem>()
+                .Property(i => i.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<RecurringBill>()
+                .Property(b => b.Amount)
+                .HasPrecision(18, 2);
+            
         }
+
+
     } 
 }

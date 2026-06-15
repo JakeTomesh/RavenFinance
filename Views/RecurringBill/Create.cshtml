@@ -1,0 +1,67 @@
+﻿@model RavenFinance.Models.RecurringBill
+
+@{
+    ViewData["Title"] = "Create New Recurring Bill";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="RecurringBills" asp-controller="Dashboard" class="btn btn-warning">
+                <span >Cancel</span>
+            </a>
+        </div>
+
+    </div>
+    <div>
+        @{
+            if (ViewBag.ErrorMessage != null)
+            {
+                <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+            }
+        }
+    </div>
+
+    <form asp-action="Create" asp-controller="RecurringBill" method="post">
+        <div class="">
+            <div>
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control"/>
+            </div>
+            <div>
+                <label asp-for="Amount"></label>
+                <input asp-for="Amount" type="number" min="0" step="0.01" max="10000" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="DueDate"></label>
+                <input asp-for="DueDate" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="Category"></label>
+                <select asp-for="Category" class="form-control">
+                    @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.CategoryId">@category.Name</option>
+                            }
+                </select>
+            </div>
+            <div>
+                <label asp-for="PaymentSource"></label>
+                <input asp-for="PaymentSource" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="Notes"></label>
+                <textarea asp-for="Notes" rows="7" cols="10" class="form-control"></textarea>
+            </div>
+            <div>
+                <label asp-for="IsSplit"></label>
+                <input asp-for="IsSplit" type="checkbox"/>
+            </div>
+        </div>
+        <button class="btn btn-success" type="submit">Save New Bill</button>
+    </form>
+</div>
+

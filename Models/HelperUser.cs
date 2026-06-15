@@ -64,13 +64,65 @@ namespace RavenFinance.Models
         {
             try
             {
-                var user = context.Users.FirstOrDefault(u => u.Id == id);
+                var user = context.Users.FirstOrDefault(u => u.UserId == id);
                 return user;
             }catch (Exception ex)
             {
                 throw new Exception("User not found with the provided ID.", ex);
             }
             
+        }
+        public static List<RecurringBill> GetRecurringBillsByUserId(RavenDbContext context, int userId)
+        {
+            try
+            {
+                var bills = context.RecurringBills.Where(b => b.UserId == userId).ToList();
+                return bills;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving recurring bills for the user.", ex);
+            }
+        }
+
+        public static void CreateNewRecurringBill(RavenDbContext context, RecurringBill bill)
+        {
+            try
+            {
+                context.RecurringBills.Add(bill);
+                context.SaveChanges();
+            }catch (Exception ex)
+            {
+                throw new Exception("Error saving recurring bill to database.", ex);
+            }
+        }
+
+        public static List<Category> GetCategoriesByUserId(RavenDbContext context, int userId)
+        {
+            
+            try
+            {
+                List<Category> categories = context.Categories.Where(c => c.UserId == userId).ToList();
+                
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while retrieving categories for user.", ex);
+            }
+            
+        }
+
+        public static void CreateNewCategory(RavenDbContext context, Category category)
+        {
+            try
+            {
+                context.Categories.Add(category);
+                context.SaveChanges();
+            }catch (Exception ex)
+            {
+                throw new Exception("Error creating category.", ex);
+            }
         }
     }
 }

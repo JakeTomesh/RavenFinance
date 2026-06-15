@@ -1,0 +1,67 @@
+﻿@model IEnumerable<RavenFinance.Models.RecurringBill>
+
+@{
+    ViewData["Title"] = "Recurring Bills";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>Recurring Bills</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" asp-controller="RecurringBill" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Bill
+            </a>
+        </div>
+    </div>
+
+    @if (Model?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Amount</th>
+                        <th>Next Due Date</th>
+                        <th>Category</th>
+                        <th>Payment Source</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var bill in Model)
+                    {
+                        <tr>
+                            <td>@bill.Name</td>
+                            <td>@bill.Amount.ToString("C")</td>
+                            <td>@bill.DueDate.ToString("MM/dd/yyyy")</td>
+                            <td>@bill.Category.Name</td>
+                            <td>@bill.PaymentSource.Name</td>
+                            
+                            <td>
+                                <a asp-action="Details" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-info" title="Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-danger" title="Delete"
+                                   onclick="return confirm('Are you sure you want to delete this bill?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p class="mb-0">No recurring bills found. <a asp-action="Create" asp-controller="RecurringBill">Add your first bill</a></p>
+        </div>
+    }
+</div>

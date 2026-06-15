@@ -1,0 +1,37 @@
+﻿@model RavenFinance.Models.Category
+@{
+    ViewData["Title"] = "Create a Category";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" asp-controller="Category" class="btn btn-warning">
+                <span>Cancel</span>
+            </a>
+        </div>
+
+    </div>
+    <div>
+        @{
+            if (ViewBag.ErrorMessage != null)
+            {
+                <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+            }
+            
+        }
+    </div>
+
+    <form asp-action="Create" asp-controller="Category" method="post">
+        <div>
+            <div>
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+        </div>
+        <button class="btn btn-success mt-1" type="submit">Save New Category</button>
+    </form>
+</div>

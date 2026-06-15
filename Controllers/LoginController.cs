@@ -30,7 +30,7 @@ namespace RavenFinance.Controllers
             if (user != null)
             {
                 //if valid, set session and redirect to dashboard
-                HttpContext.Session.SetInt32("UserId", user.Id);
+                HttpContext.Session.SetInt32("UserId", user.UserId);
                 ViewBag.UserMessage = " Welcome, " + user.FirstName;
                 return RedirectToAction("Index", "Dashboard");
 
