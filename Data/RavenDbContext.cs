@@ -14,6 +14,7 @@ namespace RavenFinance.Data
         public DbSet<User> Users { get; set; }
         public DbSet<RecurringBill> RecurringBills { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<PaymentSource> PaymentSources { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

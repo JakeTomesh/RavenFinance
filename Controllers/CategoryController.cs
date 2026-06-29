@@ -64,5 +64,134 @@ namespace RavenFinance.Controllers
             }
             return View("Index");
         }
+
+        [HttpGet]
+        public IActionResult Delete(int categoryId)
+        {
+            try
+            {
+                User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+                if (user == null)
+                    return RedirectToAction("Index", "Category");
+
+                Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
+        
+                if (category != null)
+                {
+                    return View(category); 
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Category not found.";
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+        
+        [HttpPost]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+            try
+            {
+                User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+                if (user == null)
+                    return RedirectToAction("Index", "Category");
+
+                Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
+                if (category != null)
+                {
+                    HelperUser.DeleteCategory(dbContext, category);
+                    TempData["SuccessMessage"] = "Category deleted successfully!";
+                    return RedirectToAction("Index", "Category");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Category not found. Delete unsuccessful.";
+                    return View();
+                }
+                
+            }catch (Exception ex)
+            {
+                ViewBag.ErrorMessage = ex.Message;
+                return View("Index");
+            }
+            
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int categoryId)
+        {
+            if(categoryId > 0)
+            {
+                try
+                {
+                    User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+                    if (user == null)
+                    {
+                        TempData["ErrorMessage"] = "User not found.";
+                        return RedirectToAction("Index", "Category");
+                    }
+                    Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
+                    return View(category);
+                }catch(Exception ex)
+                {
+                    TempData["ErrorMessage"] = ex.Message;
+                    return View("Index");
+                }
+                
+            }
+            else
+            {
+                ViewBag.ErrorMessage = "Category not found";
+                return View("Index");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult EditCategory(int categoryId, string Name)
+        {
+            if(categoryId > 0)
+            {
+                try
+                {
+                    User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+                    if(user == null)
+                    {
+                        TempData["ErrorMessage"] = "User not found.";
+                        return RedirectToAction("Index", "Category");
+                    }
+
+                    Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
+
+                    if(category != null)
+                    {
+                        //assign new name to category object
+                        category.Name = Name;
+                        HelperUser.UpdateCategory(dbContext, category, user);
+                        TempData["SuccessMessage"] = "Category updated successfully!";
+                        return RedirectToAction("Index", "Category");
+                    }
+                    else
+                    {
+                        ViewBag.ErrorMessage = "Category not found.";
+                        return View("Index");
+                    }
+                    
+                }catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = ex.Message;
+                    return View("Index");
+                }
+            }else
+            {
+                ViewBag.ErrorMessage = "Category not found.";
+                return View("Index");
+            }
+        }
     }
 }

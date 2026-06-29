@@ -5,25 +5,8 @@
 <div>
     <h1>@ViewData["Title"]</h1>
 </div>
-@if (ViewBag.ErrorMessage != null)
-{
-    <div>
-        <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
-    </div>
-}
-@if (ViewBag.SuccessMessage != null)
-{
-    <div>
-        <span class="text-success fw-bold">@ViewBag.SuccessMessage</span>
-    </div>
-}
-<div>
-<div>
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <span class="text-success fw-bold">@TempData["SuccessMessage"]</span>
-    }
-</div>
+<partial name="_UserMessage" />
+
     <p>CONTROLS</p>
     <form asp-controller="Dashboard" asp-action="RecurringBills" method="get">
         <button class="btn btn-danger">MONTHLY RECURRING BILLS</button>
@@ -31,6 +14,9 @@
     <button class="btn btn-success">SAVINGS</button>
     <form asp-controller="Category" asp-action="Index" method="get">
         <button class="btn btn-warning">CATEGORIES</button>
+    </form>
+    <form asp-controller="PaymentSource" asp-action="Index" method="get">
+        <button class="btn btn-info">PAYMENT SOURCE</button>
     </form>
     <button class="btn btn-info">INCOME</button>
     <button class="btn btn-secondary">CREDIT LINES</button>

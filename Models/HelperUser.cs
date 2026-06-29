@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RavenFinance.Data;
 using System.Text.RegularExpressions;
 
@@ -16,7 +17,28 @@ namespace RavenFinance.Models
             throw new InvalidOperationException("User ID not found in session.");
         }
 
-        public static User IsValidLogin(RavenDbContext context, string Email, string Password)
+        public static User? ValidateCurrentUser(RavenDbContext context, HttpContext session)
+        {
+            try
+            {
+                var userId = HelperUser.GetUserFromSession(session);
+                if (userId > 0)
+                {
+                    User? user = HelperUser.GetUserById(context, userId);
+                    return user;
+                }
+                else
+                {
+                    throw new NullReferenceException();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error validating user in session.", ex);
+            }
+        }
+
+        public static User? IsValidLogin(RavenDbContext context, string Email, string Password)
         {
             if(Email != null && Password != null)
             {
@@ -60,7 +82,7 @@ namespace RavenFinance.Models
             return newUser;
         }
 
-        public static User GetUserById(RavenDbContext context, int id)
+        public static User? GetUserById(RavenDbContext context, int id)
         {
             try
             {
@@ -124,5 +146,70 @@ namespace RavenFinance.Models
                 throw new Exception("Error creating category.", ex);
             }
         }
+
+        public static void DeleteCategory(RavenDbContext context, Category category)
+        {
+            try
+            {
+                context.Categories.Remove(category);
+                context.SaveChanges();
+            }catch (Exception ex)
+            {
+                throw new Exception("Error deleting categoy", ex);
+            }
+        }
+
+        public static Category? GetCategoryByCategoryIdAndUserId(RavenDbContext context, int categoryId, int userId)
+        {
+            try
+            {
+                Category? category = context.Categories.FirstOrDefault(c => c.CategoryId == categoryId &&
+                c.UserId == userId);
+                return category;
+            }catch (Exception ex)
+            {
+                throw new Exception("Error retrieving category.", ex);
+            }
+        }
+
+        public static void UpdateCategory(RavenDbContext context, Category category, User user)
+        {
+            try
+            {
+               
+                context.Categories.Update(category);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating category", ex);
+            }
+        }
+
+        public static List<PaymentSource> GetPaymentSourcesByUserId(RavenDbContext context, int userId)
+        {
+            try
+            {
+                List<PaymentSource> paymentSources = context.PaymentSources.Where(p => p.UserId == userId).ToList();
+                return paymentSources;
+
+            }catch(Exception ex)
+            {
+                throw new Exception("Error retrieving payment source for user.", ex);
+            }
+        }
+
+        public static void CreateNewPaymentSource(RavenDbContext context, PaymentSource paymentSource)
+        {
+            try
+            {
+                context.PaymentSources.Add(paymentSource);
+                context.SaveChanges();
+            }catch (Exception ex)
+            {
+                throw new Exception("Error creating new payment source", ex);
+            }
+        }
+
+
     }
 }

@@ -1,0 +1,28 @@
+﻿
+@{
+}
+@if (ViewBag.ErrorMessage != null)
+{
+    <div>
+        <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
+    </div>
+}
+@if (ViewBag.SuccessMessage != null)
+{
+    <div>
+        <span class="text-success fw-bold">@ViewBag.SuccessMessage</span>
+    </div>
+}
+  
+@if (TempData["SuccessMessage"] != null)
+{
+    <div>
+        <span class="text-success fw-bold">@TempData["SuccessMessage"]</span>
+    </div>
+}
+@if(TempData["ErrorMessage"] != null)
+{
+    <div>
+        <span class="text-danger fw-bold">@TempData["ErrorMessage"]</span>
+    </div>
+}

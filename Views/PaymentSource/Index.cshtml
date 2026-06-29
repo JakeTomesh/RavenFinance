@@ -1,0 +1,58 @@
+﻿@model IEnumerable<PaymentSource>
+@{
+    ViewData["Title"] = "Payment Source";
+}
+
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Create" asp-controller="PaymentSource" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add a Payment Source
+            </a>
+        </div>
+    </div>
+    <partial name="_UserMessage" />
+
+    @if (Model?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var paymentSource in Model)
+                    {
+                        <tr>
+                            <td>@paymentSource.Name</td>
+
+                            <td>
+
+                                <a asp-action="Edit" asp-route-categoryId="@paymentSource.PaymentSourceId" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="bi bi-pencil">Edit</i>
+                                </a>
+                                <a asp-action="Delete" asp-route-categoryId="@paymentSource.PaymentSourceId" class="btn btn-sm btn-danger">
+                                    <i class="bi bi-trash">Delete</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <p class="mb-0">No payment sources found. <a asp-action="Create" asp-controller="PaymentSource">Add your first payment source</a></p>
+        </div>
+    }
+</div>
+

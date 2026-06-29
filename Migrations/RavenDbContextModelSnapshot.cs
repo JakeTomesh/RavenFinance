@@ -64,7 +64,7 @@ namespace RavenFinance.Migrations
 
                     b.HasIndex("StatementItemId");
 
-                    b.ToTable("PaymentSource");
+                    b.ToTable("PaymentSources");
                 });
 
             modelBuilder.Entity("RavenFinance.Models.RecurringBill", b =>

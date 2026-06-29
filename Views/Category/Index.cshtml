@@ -15,12 +15,7 @@
             </a>
         </div>
     </div>
-    <div>
-        @if(TempData["SuccessMessage"] != null)
-        {
-            <span class="text-success fw-bold">@TempData["SuccessMessage"]</span>
-        }
-    </div>
+    <partial name="_UserMessage" />
 
     @if (Model?.Any() == true)
     {
@@ -39,14 +34,11 @@
                             <td>@category.Name</td>
                             
                             <td>
-                                <a asp-action="Details" asp-route-id="@category.CategoryId" class="btn btn-sm btn-info" title="Details">
-                                    <i class="bi bi-eye">Details</i>
-                                </a>
-                                <a asp-action="Edit" asp-route-id="@category.CategoryId" class="btn btn-sm btn-warning" title="Edit">
+                               
+                                <a asp-action="Edit" asp-route-categoryId="@category.CategoryId" class="btn btn-sm btn-warning" title="Edit">
                                     <i class="bi bi-pencil">Edit</i>
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@category.CategoryId" class="btn btn-sm btn-danger" title="Delete"
-                                       onclick="return confirm('Are you sure you want to delete this category?');">
+                                <a asp-action="Delete" asp-route-categoryId="@category.CategoryId" class="btn btn-sm btn-danger">
                                     <i class="bi bi-trash">Delete</i>
                                 </a>
                             </td>
