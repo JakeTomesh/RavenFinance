@@ -98,7 +98,12 @@ namespace RavenFinance.Models
         {
             try
             {
-                var bills = context.RecurringBills.Where(b => b.UserId == userId).ToList();
+                var bills = context.RecurringBills
+                    .Include(b => b.Category)
+                    .Include(b => b.PaymentSource)
+                    .Where(b => b.UserId == userId)
+                    .ToList();
+                
                 return bills;
             }
             catch (Exception ex)
@@ -172,7 +177,7 @@ namespace RavenFinance.Models
             }
         }
 
-        public static void UpdateCategory(RavenDbContext context, Category category, User user)
+        public static void UpdateCategory(RavenDbContext context, Category category)
         {
             try
             {
@@ -210,6 +215,47 @@ namespace RavenFinance.Models
             }
         }
 
+        public static PaymentSource GetPaymentSourceById(RavenDbContext context, int paymentSourceId, int userId)
+        {
+            try
+            {
+                PaymentSource? paymentSource = context.PaymentSources.FirstOrDefault(p => p.PaymentSourceId == paymentSourceId &&
+                    p.UserId == userId);
+                if(paymentSource == null)
+                {
+                    throw new NullReferenceException();
+                }
+                return paymentSource;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving payment source.", ex);
+            }
+        }
+
+        public static void UpdatePaymentSource(RavenDbContext context, PaymentSource paymentSource)
+        {
+            try
+            {
+                context.PaymentSources.Update(paymentSource);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating payment source", ex);
+            }
+        }
+
+        public static void DeletePaymentSource(RavenDbContext context, PaymentSource paymentSource)
+        {
+            try
+            {
+                context.PaymentSources.Remove(paymentSource);
+                context.SaveChanges();
+            }catch( Exception ex)
+            {
+                throw new Exception("Error removing payment source.", ex);
+            }
+        }
 
     }
 }

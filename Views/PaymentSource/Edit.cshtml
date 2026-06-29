@@ -1,0 +1,30 @@
+﻿@model RavenFinance.Models.PaymentSource
+@{
+    ViewData["Title"] = "Edit Payment Source";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" asp-controller="PaymentSource" class="btn btn-warning">
+                <span>Cancel</span>
+            </a>
+        </div>
+
+    </div>
+    <partial name="_UserMessage" />
+
+    <form asp-action="EditPaymentSource" asp-controller="PaymentSource" method="post">
+        <input type="hidden" asp-for="PaymentSourceId" />
+        <div>
+            <div>
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+        </div>
+        <button class="btn btn-success mt-1" type="submit">Update Payment Source</button>
+    </form>
+</div>

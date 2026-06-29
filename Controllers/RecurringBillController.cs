@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using RavenFinance.Data;
 using RavenFinance.Models;
 
@@ -21,41 +22,73 @@ namespace RavenFinance.Controllers
         {
             var userId = HelperUser.GetUserFromSession(HttpContext);
             var categories = HelperUser.GetCategoriesByUserId(dbContext, userId);
-            ViewBag.Categories = categories.ToList();
+            var paymentSources = HelperUser.GetPaymentSourcesByUserId(dbContext,userId);
+            
+            ViewBag.Categories = categories;
+            ViewBag.PaymentSources = paymentSources;
             return View();
         }
 
 
         [HttpPost]
-        public IActionResult Create(string name, decimal amount, DateTime dueDate, Category category, PaymentSource paymentSource, string notes, bool isSplit)
+        public IActionResult Create(RecurringBill recurringBill)
         {
             var userId = HelperUser.GetUserFromSession(HttpContext);
+            User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+
             if(userId > 0)
             {
-                RecurringBill bill = new RecurringBill
+                if (ModelState.IsValid)
                 {
-                    UserId = userId,
-                    Name = name,
-                    Amount = amount,
-                    DueDate = dueDate,
-                    Category = category,
-                    PaymentSource = paymentSource,
-                    Notes = notes,
-                    IsSplit = isSplit
-                };
-                try
-                {
-                    HelperUser.CreateNewRecurringBill(dbContext, bill);
-                    TempData["SuccessMessage"] = "New recurring bill added seccessfully!";
-                    return RedirectToAction("RecurringBills", "Dashboard");
+                    RecurringBill bill = new RecurringBill
+                    {
+                        UserId = userId,
+                        Name = recurringBill.Name,
+                        Amount = recurringBill.Amount,
+                        DueDate = recurringBill.DueDate,
+                        CategoryId = recurringBill.CategoryId,
+                        //Category = recurringBill.Category,
+                        PaymentSourceId = recurringBill.PaymentSourceId,
+                        //PaymentSource = recurringBill.PaymentSource,
+                        Notes = recurringBill.Notes,
+                        IsSplit = recurringBill.IsSplit
+                    };
+                    //use category id to populate category object into constructor
+                    //same for payment source
+                    Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, bill.CategoryId, userId);
+
+                    PaymentSource? paymentSource = HelperUser.GetPaymentSourceById(dbContext, bill.PaymentSourceId, userId);
+                    //add objects to constructor
+                    bill.PaymentSource = paymentSource;
+                    bill.Category = category;
+
+                    //db call
+                    try
+                    {
+                        HelperUser.CreateNewRecurringBill(dbContext, bill);
+                        TempData["SuccessMessage"] = "New recurring bill added seccessfully!";
+                        return RedirectToAction("RecurringBills", "Dashboard");
+                    }
+                    catch (Exception ex)
+                    {
+                        ViewBag.ErrorMessage = "An error occured while saving new recurring bill. " + ex;
+
+                        return View("Create");
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    ViewBag.ErrorMessage = "An error occured while saving new recurring bill. " + ex;
-                    return View("Create");
+                    TempData["ErrorMessage"] = "Error constructing new recurring bill.";
+                    return RedirectToAction("Create", recurringBill);
                 }
+
             }
-            return View();
+            else
+            {
+                ViewBag.ErrorMessage = "User not found.";
+                return View();
+
+            }
         }
     }
 }

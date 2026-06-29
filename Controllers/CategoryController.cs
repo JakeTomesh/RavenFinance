@@ -172,7 +172,7 @@ namespace RavenFinance.Controllers
                     {
                         //assign new name to category object
                         category.Name = Name;
-                        HelperUser.UpdateCategory(dbContext, category, user);
+                        HelperUser.UpdateCategory(dbContext, category);
                         TempData["SuccessMessage"] = "Category updated successfully!";
                         return RedirectToAction("Index", "Category");
                     }

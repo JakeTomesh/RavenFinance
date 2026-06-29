@@ -24,7 +24,7 @@
                     <tr>
                         <th>Name</th>
                         <th>Amount</th>
-                        <th>Next Due Date</th>
+                        <th>Due Day of Month</th>
                         <th>Category</th>
                         <th>Payment Source</th>
                         <th>Actions</th>
@@ -36,7 +36,7 @@
                         <tr>
                             <td>@bill.Name</td>
                             <td>@bill.Amount.ToString("C")</td>
-                            <td>@bill.DueDate.ToString("MM/dd/yyyy")</td>
+                            <td>@bill.DueDate</td>
                             <td>@bill.Category.Name</td>
                             <td>@bill.PaymentSource.Name</td>
                             
