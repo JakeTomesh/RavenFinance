@@ -168,6 +168,16 @@ namespace RavenFinance.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 2,
+                            Email = "jacobtomesh2@gmail.com",
+                            FirstName = "Jake",
+                            LastName = "Tomesh",
+                            Password = "sesame"
+                        });
                 });
 
             modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>

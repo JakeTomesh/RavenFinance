@@ -15,6 +15,7 @@
             </a>
         </div>
     </div>
+   <partial name="_UserMessage" />
 
     @if (Model?.Any() == true)
     {
@@ -42,14 +43,13 @@
                             
                             <td>
                                 <a asp-action="Details" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-info" title="Details">
-                                    <i class="bi bi-eye"></i>
+                                    <i class="bi bi-eye">Details</i>
                                 </a>
                                 <a asp-action="Edit" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-warning" title="Edit">
-                                    <i class="bi bi-pencil"></i>
+                                    <i class="bi bi-pencil">Edit</i>
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-danger" title="Delete"
-                                   onclick="return confirm('Are you sure you want to delete this bill?');">
-                                    <i class="bi bi-trash"></i>
+                                <a asp-action="Delete" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-danger" title="Delete">
+                                    <i class="bi bi-trash">Delete</i>
                                 </a>
                             </td>
                         </tr>

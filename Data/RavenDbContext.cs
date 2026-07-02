@@ -25,6 +25,18 @@ namespace RavenFinance.Data
             modelBuilder.Entity<RecurringBill>()
                 .Property(b => b.Amount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<User>()
+                 .HasData(
+                 new User
+                 {
+                     UserId = 2,
+                     FirstName = "Jake",
+                     LastName = "Tomesh",
+                     Email = "jacobtomesh2@gmail.com",
+                     Password = "sesame"
+                 });
+            
             
         }
 

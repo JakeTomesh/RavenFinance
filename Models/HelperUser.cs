@@ -257,5 +257,42 @@ namespace RavenFinance.Models
             }
         }
 
+        public static RecurringBill GetRecurringBillByBillId(RavenDbContext context, int recurringBillId, int userId)
+        {
+            try
+            {
+               RecurringBill? bill = context.RecurringBills
+                    .Include(b => b.Category)
+                    .Include(b => b.PaymentSource)
+                    .FirstOrDefault(b => b.RecurringBillId == recurringBillId && b.UserId == userId);
+                if (bill == null)
+                    return null;
+                else
+                {
+                    return bill;
+                }
+            }catch(Exception ex)
+            {
+                throw new Exception("Error loading recurring bill.", ex);
+            }
+        }
+
+        public static void UpdateRecurringBill(RavenDbContext context,  RecurringBill recurringBill)
+        {
+            try
+            {
+                context.RecurringBills.Update(recurringBill);
+                context.SaveChanges();
+
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating recurring bill.", ex);
+            }
+        }
+
+        public static void DeleteRecurringBill(RavenDbContext context, int recurringBillId, int userId)
+        {
+
+        }
     }
 }

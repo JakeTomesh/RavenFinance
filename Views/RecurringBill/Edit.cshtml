@@ -1,0 +1,64 @@
+﻿@model RavenFinance.Models.RecurringBill
+@{
+    ViewData["Title"] = "Edit Recurring Bill";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" asp-controller="RecurringBill" class="btn btn-warning">
+                <span>Cancel</span>
+            </a>
+        </div>
+
+    </div>
+    <partial name="_UserMessage" />
+
+    <form asp-action="EditRecurringBill" asp-controller="RecurringBill" method="post">
+        <input type="hidden" asp-for="RecurringBillId" />
+        <div>
+            <div>
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="Amount"></label>
+                <input asp-for="Amount" type="number" min="0" step="0.01" max="10000" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="DueDate">Due on day of month</label>
+                <input asp-for="DueDate" min="1" max="31" step="1" class="form-control" />
+            </div>
+            <div>
+                <label asp-for="Category"></label>
+                <select asp-for="CategoryId" class="form-control">
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.CategoryId">@category.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="PaymentSource"></label>
+                <select asp-for="PaymentSourceId" class="form-control">
+                    @foreach (var paymentSource in ViewBag.PaymentSources)
+                    {
+                        <option value="@paymentSource.PaymentSourceId">@paymentSource.Name</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="Notes"></label>
+                <textarea asp-for="Notes" rows="7" cols="10" class="form-control"></textarea>
+            </div>
+            <div>
+                <label asp-for="IsSplit"></label>
+                <input asp-for="IsSplit" type="checkbox" />
+            </div>
+        </div>
+        <button class="btn btn-success mt-1" type="submit">Update Recurring Bill</button>
+    </form>
+</div>

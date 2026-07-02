@@ -7,18 +7,7 @@
 <div class="text-center">
     <h1 class="display-4">Login for Raven Finance</h1>
 </div>
-@if (ViewBag.ErrorMessage != null)
-{
-    <div>
-        <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
-    </div>
-}
-@if(ViewBag.SuccessMessage != null)
-{
-    <div>
-        <span class="text-success fw-bold">@ViewBag.SuccessMessage</span>
-    </div>
-}
+<partial name="_UserMessage">
 
 <div>
     <form asp-action="Login" asp-controller="Login" method="post">
