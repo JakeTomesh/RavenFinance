@@ -41,6 +41,31 @@ namespace RavenFinance.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("RavenFinance.Models.Credit", b =>
+                {
+                    b.Property<int>("CreditId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CreditId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StatementItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CreditId");
+
+                    b.HasIndex("StatementItemId");
+
+                    b.ToTable("Credit");
+                });
+
             modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>
                 {
                     b.Property<int>("PaymentSourceId")
@@ -178,6 +203,15 @@ namespace RavenFinance.Migrations
                             LastName = "Tomesh",
                             Password = "sesame"
                         });
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.Credit", b =>
+                {
+                    b.HasOne("RavenFinance.Models.StatementItem", "StatementItem")
+                        .WithMany()
+                        .HasForeignKey("StatementItemId");
+
+                    b.Navigation("StatementItem");
                 });
 
             modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>

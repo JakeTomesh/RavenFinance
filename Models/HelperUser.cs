@@ -292,7 +292,18 @@ namespace RavenFinance.Models
 
         public static void DeleteRecurringBill(RavenDbContext context, int recurringBillId, int userId)
         {
+            try
+            {
+                var bill = GetRecurringBillByBillId(context, recurringBillId, userId);
 
+                context.RecurringBills.Remove(bill);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error deleting recurring bill.", ex);
+            }
         }
+
+        
     }
 }
