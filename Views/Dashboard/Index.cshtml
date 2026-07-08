@@ -8,17 +8,22 @@
 <partial name="_UserMessage" />
 <div>
     <p>CONTROLS</p>
+    <form asp-controller="FinanceRecord" asp-action="Index" method="get">
+        <button class="btn btn-success">Start a new monthly finance record</button>
+    </form>
     <form asp-controller="RecurringBill" asp-action="Index" method="get">
         <button class="btn btn-danger">MONTHLY RECURRING BILLS</button>
     </form>
-    <button class="btn btn-success">SAVINGS</button>
+    <form asp-controller="Saving" asp-action="Index" method="get">
+        <button class="btn btn-danger">SAVINGS</button>
+    </form>
     <form asp-controller="Category" asp-action="Index" method="get">
         <button class="btn btn-warning">CATEGORIES</button>
     </form>
     <form asp-controller="PaymentSource" asp-action="Index" method="get">
         <button class="btn btn-info">PAYMENT SOURCE</button>
     </form>
-    <button class="btn btn-info">INCOME</button>
+    
 
 
 </div>

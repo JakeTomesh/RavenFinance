@@ -1,0 +1,30 @@
+﻿@model RavenFinance.Models.Saving
+@{
+    ViewData["Title"] = "Edit Savings";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <div class="col text-end">
+            <a asp-action="Index" asp-controller="Saving" class="btn btn-warning">
+                <span>Cancel</span>
+            </a>
+        </div>
+
+    </div>
+    <partial name="_UserMessage" />
+
+    <form asp-action="EditSaving" asp-controller="Saving" method="post">
+        <input type="hidden" asp-for="SavingId" />
+        <div>
+            <div>
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+        </div>
+        <button class="btn btn-success mt-1" type="submit">Update Savings</button>
+    </form>
+</div>

@@ -10,10 +10,15 @@ namespace RavenFinance.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "UserId", "Email", "FirstName", "LastName", "Password" },
-                values: new object[] { 2, "jacobtomesh2@gmail.com", "Jake", "Tomesh", "sesame" });
+            migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM Users WHERE UserId = 2)
+                BEGIN
+                    SET IDENTITY_INSERT [Users] ON;
+                    INSERT INTO [Users] (UserId, Email, FirstName, LastName, Password)
+                    VALUES (2, N'jacobtomesh2@gmail.com', N'Jake', N'Tomesh', N'sesame');
+                    SET IDENTITY_INSERT [Users] OFF;
+                END
+            ");
         }
 
         /// <inheritdoc />

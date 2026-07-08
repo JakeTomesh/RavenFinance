@@ -12,10 +12,12 @@ namespace RavenFinance.Migrations
         {
             // Check if user already exists before inserting
             migrationBuilder.Sql(@"
-                IF NOT EXISTS (SELECT 1 FROM Users WHERE Id = 1)
+                IF NOT EXISTS (SELECT 1 FROM Users WHERE UserId = 1)
                 BEGIN
-                    INSERT INTO Users (Id, Email, FirstName, LastName, Password)
-                    VALUES (1, 'jacobtomesh2@gmail.com', 'Jake', 'Tomesh', 'sesame')
+                    SET IDENTITY_INSERT [Users] ON;
+                    INSERT INTO [Users] (UserId, Email, FirstName, LastName, Password)
+                    VALUES (1, N'jacobtomesh2@gmail.com', N'Jake', N'Tomesh', N'sesame');
+                    SET IDENTITY_INSERT [Users] OFF;
                 END
             ");
         }

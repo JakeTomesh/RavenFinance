@@ -304,6 +304,65 @@ namespace RavenFinance.Models
             }
         }
 
+        public static List<Saving> GetSavingsByUserId(RavenDbContext context, int userId)
+        {
+            try
+            {
+                List<Saving> savings = context.Savings.Where(s => s.UserId == userId).ToList();
+                return savings;
+            }catch(Exception ex)
+            {
+                throw new Exception("Error retrieving user's savings.", ex);
+            }
+        }
+
+        public static void CreateNewSaving(RavenDbContext context, Saving saving)
+        {
+            try
+            {
+                context.Savings.Add(saving);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error saving new savings.", ex);
+            }
+        }
+
+        public static Saving GetSavingById(RavenDbContext context, int savingId, int userId)
+        {
+            try
+            {
+                Saving? saving = context.Savings.FirstOrDefault(s => s.SavingId == savingId && s.UserId == userId);
+                return saving;
+            }catch(Exception ex)
+            {
+                throw new Exception("Error retrieving savings.", ex);
+            }
+        }
+
+        public static void DeleteSaving(RavenDbContext context, Saving saving)
+        {
+            try
+            {
+                context.Savings.Remove(saving);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error deleting savings.", ex);
+            }
+        }
+
+        public static void UpdateSaving(RavenDbContext context, Saving saving)
+        {
+            try
+            {
+                context.Savings.Update(saving);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating savings.", ex);
+            }
+        }
         
     }
 }

@@ -15,15 +15,8 @@
         </div>
 
     </div>
-    <div>
-        @{
-            if (ViewBag.ErrorMessage != null)
-            {
-                <span class="text-danger fw-bold">@ViewBag.ErrorMessage</span>
-            }
-            
-        }
-    </div>
+    <partial name="_UserMessage" />
+
 
     <form asp-action="Create" asp-controller="Category" method="post">
         <div>

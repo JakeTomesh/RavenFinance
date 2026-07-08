@@ -72,7 +72,7 @@ namespace RavenFinance.Controllers
             {
                 User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                 if (user == null)
-                    return RedirectToAction("Index", "Category");
+                    return RedirectToAction("Index", "Login");
 
                 Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
         
@@ -100,7 +100,7 @@ namespace RavenFinance.Controllers
             {
                 User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                 if (user == null)
-                    return RedirectToAction("Index", "Category");
+                    return RedirectToAction("Index", "Login");
 
                 Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
                 if (category != null)
@@ -134,7 +134,7 @@ namespace RavenFinance.Controllers
                     if (user == null)
                     {
                         TempData["ErrorMessage"] = "User not found.";
-                        return RedirectToAction("Index", "Category");
+                        return RedirectToAction("Index", "Login");
                     }
                     Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
                     return View(category);
@@ -163,7 +163,7 @@ namespace RavenFinance.Controllers
                     if(user == null)
                     {
                         TempData["ErrorMessage"] = "User not found.";
-                        return RedirectToAction("Index", "Category");
+                        return RedirectToAction("Index", "Login");
                     }
 
                     Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
