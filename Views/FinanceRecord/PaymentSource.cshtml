@@ -1,7 +1,14 @@
-﻿
+﻿@model RavenFinance.Models.FinaceRecord
 @{
+    ViewData["Title"] = "Payment Source Selection";
 }
  <p>Select a payment source to input statement items.</p>
+ <select>
+    @foreach(var item in Model.PaymentSource)
+    {
+        <option value="@item.PaymentSourceId">@item.Name</option>
+    }
+ </select>
  <p>Show list of all payment sources for user.</p>
  <p>Add option to add a new payment source.</p>
  <p>Show how many statement items a payment source has for this instance of finance record.</p>
