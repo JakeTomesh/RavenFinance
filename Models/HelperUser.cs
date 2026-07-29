@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RavenFinance.Data;
 using System.Text.RegularExpressions;
@@ -363,6 +364,30 @@ namespace RavenFinance.Models
                 throw new Exception("Error updating savings.", ex);
             }
         }
+
+        public static void CreateFinanceRecord(RavenDbContext context, FinanceRecord record)
+        {
+            try
+            {
+                context.FinanceRecords.Add(record);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating Finance Record.", ex);
+            }
+        }
         
+        public static FinanceRecord getFinanceRecordById(RavenDbContext context, int financeRecordId, int userId)
+        {
+            try
+            {
+                FinanceRecord? record = context.FinanceRecords.FirstOrDefault(f => f.FinanceRecordId == financeRecordId && f.UserId == userId);
+                
+                return record;
+            }catch(Exception ex)
+            {
+                throw new Exception("Error retrieving finance record.", ex);
+            }
+        }
     }
 }

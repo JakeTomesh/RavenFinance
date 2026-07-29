@@ -1,7 +1,163 @@
-﻿
+﻿@model RavenFinance.Models.StatementItemCreateViewModel
 @{
+    ViewData["Title"] = "Add Statement Items to Payment Source";
 }
-<p>Add statement item to payment source.</p>
-<p>Once submitted, save object to payment source and start new statement item.</p>
-<p>Once done, user clicks finish payment source.</p>
-<p>Return to payment source page and show how many statement items belong to a payment source.</p>
+<div class="d-flex justify-content-center align-items-center flex-column">
+
+    <h2>@ViewData["Title"]</h2>
+
+    @if (ViewData["PaymentSourceName"] != null)
+    {
+        <div>
+            <p>
+                Adding items to:
+                <strong>@ViewData["PaymentSourceName"]</strong>
+            </p>
+        </div>
+    }
+
+    <partial name="_UserMessage" />
+
+</div>
+<form asp-action="CreateStatementItem"
+      asp-controller="FinanceRecord"
+      method="post">
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <input type="hidden" asp-for="PaymentSourceId" />
+                <input type="hidden" asp-for="FinanceRecordId" />
+
+                <div class="mb-3">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="DateOfTransaction" class="form-label"></label>
+                    <input asp-for="DateOfTransaction" class="form-control" type="date" placeholder="@DateTime.Today" />
+                    <span asp-validation-for="DateOfTransaction" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="Merchant" class="form-label"></label>
+                    <input asp-for="Merchant" class="form-control" placeholder="ex: McDonalds..." />
+                    <span asp-validation-for="Merchant" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <input asp-for="Description" class="form-control" placeholder="ex: Food for friends..." />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="Amount" class="form-label"></label>
+
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+
+                        <input asp-for="Amount"
+                               class="form-control"
+                               type="number"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00" />
+                    </div>
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="CategoryId" class="form-label"></label>
+
+                    <select asp-for="CategoryId"
+                            asp-items="Model.CategoryOptions"
+                            class="form-select">
+                        <option value="">-- Select Category --</option>
+                    </select>
+
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="IsExpense" class="form-check-label">Expense?</label>
+                    <input asp-for="IsExpense" type="checkbox" class="form-check-input" id="isExpenseCheckbox" />
+                    <span asp-validation-for="IsExpense" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
+                    <span class="text-danger float-end">*</span>
+                    <label asp-for="IsDeposit" class="form-check-label">Deposit?</label>
+                    <input asp-for="IsDeposit" type="checkbox" class="form-check-input" id="isDepositCheckbox" />
+                    <span asp-validation-for="IsDeposit" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
+                    <label asp-for="IsMonthlyRecurringBill" class="form-check-label">Monthly Recurring Bill?</label>
+                    <input asp-for="IsMonthlyRecurringBill" type="checkbox" class="form-check-input" />
+                    <span asp-validation-for="IsMonthlyRecurringBill" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid gap-2">
+
+                    <button type="submit"
+                            name="submitAction"
+                            value="addAnother"
+                            class="btn btn-primary">
+                        Save and Add Another
+                    </button>
+
+                    <button type="submit"
+                            name="submitAction"
+                            value="finish"
+                            class="btn btn-success">
+                        Save and Finish
+                    </button>
+
+                    <a asp-action="ReturnToPaymentSource"
+                       asp-controller="FinanceRecord"
+                       asp-route-financeRecordId="@Model.FinanceRecordId"
+                       class="btn btn-secondary">
+                        Cancel
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<p class="mt-4 text-muted">
+    Once submitted, save object to payment source and start new statement item.
+</p>
+
+<p class="text-muted">
+    Once done, user clicks finish payment source.
+</p>
+
+<p class="text-muted">
+    Return to payment source page and show how many statement items belong to a payment source.
+</p>
+
+@section Scripts {
+    <script>
+        document.getElementById('isExpenseCheckbox').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('isDepositCheckbox').checked = false;
+            }
+        });
+
+        document.getElementById('isDepositCheckbox').addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('isExpenseCheckbox').checked = false;
+            }
+        });
+    </script>
+}

@@ -1,16 +1,55 @@
-﻿@model RavenFinance.Models.FinaceRecord
+﻿@model RavenFinance.Models.FinanceRecord
 @{
     ViewData["Title"] = "Payment Source Selection";
 }
- <p>Select a payment source to input statement items.</p>
- <select>
-    @foreach(var item in Model.PaymentSource)
-    {
-        <option value="@item.PaymentSourceId">@item.Name</option>
-    }
- </select>
+
+<partial name="_UserMessage" />
+
+<h2>@ViewData["Title"]</h2>
+<p>Select a payment source to input statement items.</p>
+
+<form asp-action="PaymentSource" asp-controller="FinanceRecord" method="get">
+    <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+
+    <div class="container">
+
+        @if (Model?.PaymentSource != null)
+        {
+            @foreach (var item in Model.PaymentSource)
+            {
+                <div class="row justify-content-center mb-3">
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-dark bg-dark-subtle w-100"
+                                type="submit"
+                                name="paymentSourceId"
+                                value="@item.PaymentSourceId">
+
+                            @item.Name - # of statement items (@(item.StatementItem?.Count ?? 0))
+
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+
+    </div>
+</form>
+
+<form asp-action="Saving" asp-controller="FinanceRecord" method="get">
+    <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+
+    <div class="container">
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-6">
+                <button class="btn btn-success w-100">
+                    Save and Continue to Savings
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+ 
  <p>Show list of all payment sources for user.</p>
- <p>Add option to add a new payment source.</p>
  <p>Show how many statement items a payment source has for this instance of finance record.</p>
  <p>User can continue to add statement items to all payment sources.</p>
  <p>Once finished, user clicks continue to Savings</p>

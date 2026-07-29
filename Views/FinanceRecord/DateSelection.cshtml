@@ -1,6 +1,10 @@
-﻿@model RavenFinance.Models.FinaceRecord
+﻿@model RavenFinance.Models.FinanceRecord
 @{
 }
+
+
+<partial name="_UserMessage" />
+
 <p>Select the date range of new finacne record.</p>
 <form asp-action="DateSelection" asp-controller="FinanceRecord" method="post">
     <label asp-for="DateStart"></label>

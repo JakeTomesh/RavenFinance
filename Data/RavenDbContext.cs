@@ -16,6 +16,7 @@ namespace RavenFinance.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<PaymentSource> PaymentSources { get; set; }
         public DbSet<Saving> Savings { get; set; }
+        public DbSet<FinanceRecord> FinanceRecords { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
