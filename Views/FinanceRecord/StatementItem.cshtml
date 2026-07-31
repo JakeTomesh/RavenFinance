@@ -83,19 +83,22 @@
                     <span asp-validation-for="CategoryId" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
+                <div class="mb-3">
                     <span class="text-danger float-end">*</span>
-                    <label asp-for="IsExpense" class="form-check-label">Expense?</label>
-                    <input asp-for="IsExpense" type="checkbox" class="form-check-input" id="isExpenseCheckbox" />
-                    <span asp-validation-for="IsExpense" class="text-danger"></span>
+                    <label class="form-label">Transaction Type</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input asp-for="ItemType" type="radio" value="@((int)StatementItemCreateViewModel.StatementItemType.Expense)" class="form-check-input" id="typeExpense" checked />
+                            <label class="form-check-label" for="typeExpense">Expense</label>
+                        </div>
+                        <div class="form-check">
+                            <input asp-for="ItemType" type="radio" value="@((int)StatementItemCreateViewModel.StatementItemType.Deposit)" class="form-check-input" id="typeDeposit" />
+                            <label class="form-check-label" for="typeDeposit">Deposit</label>
+                        </div>
+                    </div>
+                    <span asp-validation-for="ItemType" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
-                    <span class="text-danger float-end">*</span>
-                    <label asp-for="IsDeposit" class="form-check-label">Deposit?</label>
-                    <input asp-for="IsDeposit" type="checkbox" class="form-check-input" id="isDepositCheckbox" />
-                    <span asp-validation-for="IsDeposit" class="text-danger"></span>
-                </div>
 
                 <div class="mb-3 form-check form-switch d-flex flex-row justify-content-evenly">
                     <label asp-for="IsMonthlyRecurringBill" class="form-check-label">Monthly Recurring Bill?</label>
@@ -146,18 +149,3 @@
     Return to payment source page and show how many statement items belong to a payment source.
 </p>
 
-@section Scripts {
-    <script>
-        document.getElementById('isExpenseCheckbox').addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById('isDepositCheckbox').checked = false;
-            }
-        });
-
-        document.getElementById('isDepositCheckbox').addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById('isExpenseCheckbox').checked = false;
-            }
-        });
-    </script>
-}

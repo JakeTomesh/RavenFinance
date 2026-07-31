@@ -12,8 +12,8 @@ using RavenFinance.Data;
 namespace RavenFinance.Migrations
 {
     [DbContext(typeof(RavenDbContext))]
-    [Migration("20260620175525_PaymentSourceDbSet")]
-    partial class PaymentSourceDbSet
+    [Migration("20260731191726_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,33 @@ namespace RavenFinance.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("RavenFinance.Models.FinanceRecord", b =>
+                {
+                    b.Property<int>("FinanceRecordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FinanceRecordId"));
+
+                    b.Property<DateOnly>("DateEnd")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("DateStart")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FinanceRecordId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("FinanceRecords");
+                });
+
             modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>
                 {
                     b.Property<int>("PaymentSourceId")
@@ -53,19 +80,19 @@ namespace RavenFinance.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentSourceId"));
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("StatementItemId")
-                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("PaymentSourceId");
 
-                    b.HasIndex("StatementItemId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("PaymentSources");
                 });
@@ -85,8 +112,8 @@ namespace RavenFinance.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("DueDate")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsSplit")
                         .HasColumnType("bit");
@@ -113,6 +140,26 @@ namespace RavenFinance.Migrations
                     b.ToTable("RecurringBills");
                 });
 
+            modelBuilder.Entity("RavenFinance.Models.Saving", b =>
+                {
+                    b.Property<int>("SavingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SavingId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SavingId");
+
+                    b.ToTable("Savings");
+                });
+
             modelBuilder.Entity("RavenFinance.Models.StatementItem", b =>
                 {
                     b.Property<int>("StatementItemId")
@@ -128,23 +175,46 @@ namespace RavenFinance.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<DateOnly>("DateOfTransaction")
+                        .HasColumnType("date");
+
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsMonthlyRecurringBill")
+                    b.Property<int>("FinanceRecordId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsMonthlyRecurringBill")
                         .HasColumnType("bit");
 
+                    b.Property<int>("ItemType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Merchant")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PaymentSourceId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SavingId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("StatementItemId");
 
-                    b.ToTable("StatementItem");
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("FinanceRecordId");
+
+                    b.HasIndex("PaymentSourceId");
+
+                    b.HasIndex("SavingId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("StatementItems");
                 });
 
             modelBuilder.Entity("RavenFinance.Models.User", b =>
@@ -174,13 +244,26 @@ namespace RavenFinance.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("RavenFinance.Models.FinanceRecord", b =>
+                {
+                    b.HasOne("RavenFinance.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>
                 {
-                    b.HasOne("RavenFinance.Models.StatementItem", "StatementItem")
+                    b.HasOne("RavenFinance.Models.User", "User")
                         .WithMany()
-                        .HasForeignKey("StatementItemId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("StatementItem");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RavenFinance.Models.RecurringBill", b =>
@@ -200,6 +283,60 @@ namespace RavenFinance.Migrations
                     b.Navigation("Category");
 
                     b.Navigation("PaymentSource");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.StatementItem", b =>
+                {
+                    b.HasOne("RavenFinance.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RavenFinance.Models.FinanceRecord", "FinanceRecord")
+                        .WithMany("StatementItems")
+                        .HasForeignKey("FinanceRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RavenFinance.Models.PaymentSource", "PaymentSource")
+                        .WithMany("StatementItems")
+                        .HasForeignKey("PaymentSourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RavenFinance.Models.Saving", null)
+                        .WithMany("StatementItem")
+                        .HasForeignKey("SavingId");
+
+                    b.HasOne("RavenFinance.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("FinanceRecord");
+
+                    b.Navigation("PaymentSource");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.FinanceRecord", b =>
+                {
+                    b.Navigation("StatementItems");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.PaymentSource", b =>
+                {
+                    b.Navigation("StatementItems");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.Saving", b =>
+                {
+                    b.Navigation("StatementItem");
                 });
 #pragma warning restore 612, 618
         }

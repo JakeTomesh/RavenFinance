@@ -28,7 +28,7 @@ namespace RavenFinance.Controllers
         }
 
         [HttpGet]
-        public IActionResult ReturnToPaymentSource(int financeRecordId)
+        public IActionResult GetPaymentSourceSelectionView(int financeRecordId)
         {
             if(financeRecordId < 0)
             {
@@ -38,50 +38,48 @@ namespace RavenFinance.Controllers
             try
             {
                 var user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+                if(user == null)
+                {
+                    TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                    return RedirectToAction("Index", "Login");
+                }
 
-                FinanceRecord record = HelperUser.getFinanceRecordById(dbContext, financeRecordId, user.UserId);
+                FinanceRecord record = HelperUser.GetFinanceRecordById(dbContext, financeRecordId, user.UserId);
                 if(record == null)
                 {
                     TempData["ErrorMessage"] = "Error retrieving finance record.";
                     return RedirectToAction("Index");
                 }
 
-                //build user PaymentSource and Saving into obj
+                //get all payment sources for a user
+                List<PaymentSource> userPaymentSources = HelperUser.GetPaymentSourcesByUserId(dbContext, user.UserId);
 
-                List<PaymentSource> userPaymentSource = HelperUser.GetPaymentSourcesByUserId(dbContext, user.UserId);
+                //init list to populate view model
+                List<PaymentSourceSummaryViewModel> ListPaymentSourcesForViewModel = new List<PaymentSourceSummaryViewModel>();
 
-                List<Saving> userSavings = HelperUser.GetSavingsByUserId(dbContext, user.UserId);
-
-                // Initialize PaymentSource if it's null
-                if (record.PaymentSource == null)
+                //create a temp view model for each payment source for a user
+                //append to list for view model
+                foreach(var item in userPaymentSources)
                 {
-                    record.PaymentSource = new List<PaymentSource>();
-                }
-
-                // Initialize Saving if it's null
-                if (record.Saving == null)
-                {
-                    record.Saving = new List<Saving>();
-                }
-
-                foreach (PaymentSource item in userPaymentSource)
-                {
-                    if (item != null)
+                    PaymentSourceSummaryViewModel paymentSourceViewModel = new PaymentSourceSummaryViewModel
                     {
-                        record.PaymentSource.Add(item);
-
-                    }
+                        PaymentSourceId = item.PaymentSourceId,
+                        Name = item.Name,
+                        IsActive = item.IsActive,
+                        StatementItemCount = dbContext.StatementItems
+                            .Count(si => si.PaymentSourceId == item.PaymentSourceId 
+                                      && si.FinanceRecordId == financeRecordId)
+                    };
+                    ListPaymentSourcesForViewModel.Add(paymentSourceViewModel);
                 }
 
-                foreach (Saving item in userSavings)
+                FinanceRecordPaymentSourceViewModel recordViewModel = new FinanceRecordPaymentSourceViewModel
                 {
-                    if (item != null)
-                    {
-                        record.Saving.Add(item);
-                    }
-                }
+                    FinanceRecordId = record.FinanceRecordId,
+                    PaymentSources = ListPaymentSourcesForViewModel
+                };
 
-                return View("PaymentSource", record);
+                return View("PaymentSource", recordViewModel);
             }catch(Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
@@ -109,26 +107,6 @@ namespace RavenFinance.Controllers
 
                     List<Saving> userSavings = HelperUser.GetSavingsByUserId(dbContext, user.UserId);
 
-                    // Initialize PaymentSource if it's null
-                    if(record.PaymentSource == null)
-                    {
-                        record.PaymentSource = new List<PaymentSource>();
-                    }
-
-                    // Initialize Saving if it's null
-                    if (record.Saving == null)
-                    {
-                        record.Saving = new List<Saving>();
-                    }
-
-                    foreach (PaymentSource item in userPaymentSource)
-                    {
-                        if(item != null)
-                        {
-                            record.PaymentSource.Add(item);
-
-                        }
-                    }
 
                     foreach(Saving item in userSavings)
                     {
@@ -147,7 +125,45 @@ namespace RavenFinance.Controllers
                         return View("Index");
                     }
 
-                    return View("PaymentSource", record);
+
+                    //successful draft save
+                    if (record == null)
+                    {
+                        TempData["ErrorMessage"] = "Error retrieving finance record.";
+                        return RedirectToAction("Index");
+                    }
+
+                    //get all payment sources for a user
+                    List<PaymentSource> userPaymentSources = HelperUser.GetPaymentSourcesByUserId(dbContext, user.UserId);
+
+                    //init list to populate view model
+                    List<PaymentSourceSummaryViewModel> ListPaymentSourcesForViewModel = new List<PaymentSourceSummaryViewModel>();
+
+                    //create a temp view model for each payment source for a user
+                    //append to list for view model
+                    foreach (var item in userPaymentSources)
+                    {
+                        PaymentSourceSummaryViewModel paymentSourceViewModel = new PaymentSourceSummaryViewModel
+                        {
+                            PaymentSourceId = item.PaymentSourceId,
+                            Name = item.Name,
+                            IsActive = item.IsActive,
+                            StatementItemCount = dbContext.StatementItems
+                                .Count(si => si.PaymentSourceId == item.PaymentSourceId 
+                                          && si.FinanceRecordId == record.FinanceRecordId)
+                                //returns count of statement items related to the finance record id
+                        };
+                        ListPaymentSourcesForViewModel.Add(paymentSourceViewModel);
+                    }
+
+                    FinanceRecordPaymentSourceViewModel recordViewModel = new FinanceRecordPaymentSourceViewModel
+                    {
+                        FinanceRecordId = record.FinanceRecordId,
+                        PaymentSources = ListPaymentSourcesForViewModel
+                    };
+
+                    return View("PaymentSource", recordViewModel);
+
                 }
                 else
                 {
@@ -202,9 +218,7 @@ namespace RavenFinance.Controllers
                         Text = c.Name
                     }).ToList(),
                     Amount = 00.00M,
-                    DateOfTransaction = DateTime.Today,
-                    IsExpense = true,
-                    IsDeposit = false,
+                    DateOfTransaction = DateOnly.FromDateTime(DateTime.Today),
                     IsMonthlyRecurringBill = false
 
                 };
@@ -223,14 +237,6 @@ namespace RavenFinance.Controllers
 
         }
 
-        [HttpGet]
-        public IActionResult Saving(FinanceRecord record)
-        {
-
-
-
-            return View();
-        }
 
         [HttpPost]
         public IActionResult CreateStatementItem(StatementItemCreateViewModel item, string submitAction)
@@ -245,7 +251,7 @@ namespace RavenFinance.Controllers
                 return RedirectToAction("Index", "Login");
             }
 
-            if (item.DateOfTransaction > DateTime.Today)
+            if (item.DateOfTransaction > DateOnly.FromDateTime(DateTime.Today))
             {
                 ModelState.AddModelError(nameof(item.DateOfTransaction), "Date must not be in the future.");
 
@@ -261,16 +267,11 @@ namespace RavenFinance.Controllers
                 ModelState.AddModelError(nameof(item.Amount), "Amount must be a positive decimal.");
             }
 
-            if(item.CategoryId == null)
+            if(item.CategoryId <= 0)
             {
                 ModelState.AddModelError(nameof(item.CategoryId), "Category selection is required.");
             }
 
-            if(item.IsDeposit == false && item.IsExpense == false)
-            {
-                ModelState.AddModelError(nameof(item.IsExpense), "Expense or deposite must be declared.");
-                ModelState.AddModelError(nameof(item.IsDeposit), "Expense or deposite must be declared.");
-            }
 
             //final validation of model
             if (!ModelState.IsValid)
@@ -287,7 +288,48 @@ namespace RavenFinance.Controllers
                 return View("StatementItem", item);
             }
 
-            
+            var itemHere = item;
+            switch (submitAction)
+            {
+                case "addAnother":
+                    //save and repeat form, redirect to PaymentSource GET
+                    try
+                    {
+                        HelperUser.CreateNewStatementItem(dbContext, item, user.UserId);
+                        TempData["SuccessMessage"] = "Statement item saved successfully! Continue to add another.";
+                        return RedirectToAction("PaymentSource", new { item.PaymentSourceId, item.FinanceRecordId});
+                    }catch(Exception ex)
+                    {
+                        TempData["ErrorMessage"] = ex.Message;
+                        return View("StatementItem", item);
+                    }
+                    
+                case "finish":
+                    //save and forward to next view GET
+                    try
+                    {
+                        HelperUser.CreateNewStatementItem(dbContext, item, user.UserId);
+                        TempData["SuccessMessage"] = "Statement item saved successfully!";
+                        return RedirectToAction("GetPaymentSourceSelectionView", new { item.FinanceRecordId });
+                    }
+                    catch (Exception ex)
+                    {
+                        TempData["ErrorMessage"] = ex.Message;
+                        return View("StatementItem", item);
+                    }
+                default:
+                    {
+                        TempData["ErrorMessage"] = "An error occurred while processing the statement item. Please try again.";
+                        return RedirectToAction("PaymentSource", new { item.PaymentSourceId, item.FinanceRecordId });
+                    }
+            }
+        }
+
+
+        [HttpGet]
+        public IActionResult Saving(FinanceRecord record)
+        {
+
 
 
             return View();

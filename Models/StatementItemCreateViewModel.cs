@@ -15,7 +15,7 @@ namespace RavenFinance.Models
 
         [Required(ErrorMessage = "Date must be current day or in the past.")]
         [DataType(DataType.Date)]
-        public DateTime DateOfTransaction { get; set; }
+        public DateOnly DateOfTransaction { get; set; }
 
         [Required(ErrorMessage = "Merchant name required.")]
         public string? Merchant { get; set; }
@@ -27,9 +27,12 @@ namespace RavenFinance.Models
         [Range(0.01, 10000.00)]
         public decimal Amount { get; set; }
 
-        public bool IsExpense { get; set; }
-
-        public bool IsDeposit { get; set; }
+        public enum StatementItemType
+        {
+            Deposit = 0,
+            Expense = 1
+        }
+        public StatementItemType ItemType { get; set; }
 
         public bool IsMonthlyRecurringBill { get; set; }
 
@@ -38,7 +41,7 @@ namespace RavenFinance.Models
 
         [Required(ErrorMessage = "Please select a category.")]
         [Display(Name = "Category")]
-        public int? CategoryId { get; set; }
+        public int CategoryId { get; set; }
 
         public List<SelectListItem> CategoryOptions { get; set; } = [];
     }

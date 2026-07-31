@@ -1,4 +1,4 @@
-﻿@model RavenFinance.Models.FinanceRecord
+﻿@model RavenFinance.Models.FinanceRecordPaymentSourceViewModel
 @{
     ViewData["Title"] = "Payment Source Selection";
 }
@@ -13,9 +13,9 @@
 
     <div class="container">
 
-        @if (Model?.PaymentSource != null)
+        @if (Model?.PaymentSources != null)
         {
-            @foreach (var item in Model.PaymentSource)
+            @foreach (var item in Model.PaymentSources)
             {
                 <div class="row justify-content-center mb-3">
                     <div class="col-md-6">
@@ -24,7 +24,7 @@
                                 name="paymentSourceId"
                                 value="@item.PaymentSourceId">
 
-                            @item.Name - # of statement items (@(item.StatementItem?.Count ?? 0))
+                            @item.Name - # of statement items (@(item.StatementItemCount))
 
                         </button>
                     </div>

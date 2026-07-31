@@ -204,6 +204,30 @@ namespace RavenFinance.Models
             }
         }
 
+        public static List<PaymentSourceSummaryViewModel> GetPaymentSourcesForViewModel(RavenDbContext context, int userId, int financeRecordId)
+        {
+            try
+            {
+                List<PaymentSourceSummaryViewModel> paymentSources = context.PaymentSources
+                    .Where(ps => ps.UserId == userId)
+                    .Select(ps => new PaymentSourceSummaryViewModel
+                    {
+                        PaymentSourceId = ps.PaymentSourceId,
+                        Name = ps.Name,
+
+                        StatementItemCount = ps.StatementItems.Count(si =>
+                            si.FinanceRecordId == financeRecordId &&
+                            si.UserId == userId)
+                    })
+                    .ToList();
+                return paymentSources;
+
+            }catch(Exception ex)
+            {
+                throw new Exception("Error retrieving payment sources for view model.", ex);
+            }
+        }
+
         public static void CreateNewPaymentSource(RavenDbContext context, PaymentSource paymentSource)
         {
             try
@@ -377,16 +401,75 @@ namespace RavenFinance.Models
             }
         }
         
-        public static FinanceRecord getFinanceRecordById(RavenDbContext context, int financeRecordId, int userId)
+        public static FinanceRecord GetFinanceRecordById(RavenDbContext context, int financeRecordId, int userId)
         {
             try
             {
                 FinanceRecord? record = context.FinanceRecords.FirstOrDefault(f => f.FinanceRecordId == financeRecordId && f.UserId == userId);
                 
+                if(record == null)
+                    throw new NullReferenceException(nameof(record));
                 return record;
             }catch(Exception ex)
             {
                 throw new Exception("Error retrieving finance record.", ex);
+            }
+        }
+
+        public static FinanceRecord GetFinanceRecordWithAllRelations(RavenDbContext context, int financeRecordId, int userId)
+        {
+            try
+            {
+                var financeRecord = context.FinanceRecords
+                    .Where(fr =>
+                        fr.FinanceRecordId == financeRecordId &&
+                        fr.UserId == userId)
+                    .Include(fr => fr.StatementItems)
+                        .ThenInclude(si => si.PaymentSource)
+                    .Include(fr => fr.StatementItems)
+                        .ThenInclude(si => si.Category)
+                    .FirstOrDefault();
+
+                if (financeRecord == null)
+                    throw new NullReferenceException(nameof(financeRecord));
+                return financeRecord;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error retrieving finance record.", ex);
+            }
+        }
+
+        public static void CreateNewStatementItem(RavenDbContext context, StatementItemCreateViewModel model, int userId)
+        {
+            //one way to throw null exceptions without if statement
+            //pretty cool
+
+            ArgumentNullException.ThrowIfNull(model);
+            try
+            {
+                StatementItem item = new StatementItem
+                {
+                    //id genereated on save
+                    Description = model.Description,
+                    Amount = model.Amount,
+                    Merchant = model.Merchant,
+                    DateOfTransaction = model.DateOfTransaction,
+                    ItemType = (StatementItem.StatementItemType)model.ItemType,
+                    IsMonthlyRecurringBill = model.IsMonthlyRecurringBill,
+                    CategoryId = model.CategoryId,
+                    UserId = userId,
+                    PaymentSourceId = model.PaymentSourceId,
+                    FinanceRecordId = model.FinanceRecordId,
+                };
+
+                context.StatementItems.Add(item);
+                context.SaveChanges();
+
+
+            }catch(Exception ex)
+            {
+                throw new Exception("Error saving statement item.", ex);
             }
         }
     }
