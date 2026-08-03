@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using RavenFinance.Data;
 using RavenFinance.Models;
+using System.Text.Json.Nodes;
 
 namespace RavenFinance.Controllers
 {
@@ -331,10 +332,44 @@ namespace RavenFinance.Controllers
 
 
         [HttpGet]
-        public IActionResult Saving(FinanceRecord record)
+        public IActionResult Saving(int financeRecordId)
         {
+            if(financeRecordId <= 0)
+            {
+                TempData["ErrorMessage"] = "Invalid finace record.";
+                return RedirectToAction("GetPaymentSourceSelectionView", financeRecordId);
+            }
+            var user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+            if (user == null)
+            {
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
+            }
+            //save new draft of finance record
+            try
+            {
+                FinanceRecord record = HelperUser.GetFinanceRecordById(dbContext, financeRecordId, user.UserId);
+                HelperUser.UpdateFinanceRecord(dbContext, record);
+
+                //draft saved
+                //calculate gross balance for finance record
+                JsonObject obj = HelperUser.CalculateGrossFinanceRecordValue(dbContext, record);
+                //put json into view model for savings?
+
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex;
+                return View("Index");
+            }
+            
+            
+            //gather saving info
+            //forward to savings page for user to contribute to savings.
 
 
+            List<Saving> savings = HelperUser.GetSavingsByUserId(dbContext, user.UserId);
 
             return View();
         }

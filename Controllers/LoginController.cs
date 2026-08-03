@@ -82,6 +82,10 @@ namespace RavenFinance.Controllers
 
         public IActionResult Logout()
         {
+            User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
+            if(user != null)
+                HelperUser.CleanUpUserDrafts(dbContext, user.UserId);
+
             // Clear the session to log out the user
             HttpContext.Session.Clear();
             return RedirectToAction("Index", "Login");

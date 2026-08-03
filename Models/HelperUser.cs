@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RavenFinance.Data;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace RavenFinance.Models
@@ -401,6 +402,18 @@ namespace RavenFinance.Models
                 throw new Exception("Error updating Finance Record.", ex);
             }
         }
+
+        public static void UpdateFinanceRecord(RavenDbContext context, FinanceRecord record)
+        {
+            try
+            {
+                context.FinanceRecords.Update(record);
+                context.SaveChanges();
+            }catch(Exception ex)
+            {
+                throw new Exception("Error updating finance record.", ex);
+            }
+        }
         
         public static FinanceRecord GetFinanceRecordById(RavenDbContext context, int financeRecordId, int userId)
         {
@@ -471,6 +484,66 @@ namespace RavenFinance.Models
             }catch(Exception ex)
             {
                 throw new Exception("Error saving statement item.", ex);
+            }
+        }
+
+        public static void CleanUpUserDrafts(RavenDbContext context, int userId)
+        {
+            try
+            {
+                var records = context.FinanceRecords.Where(f => f.UserId == userId && f.IsComplete == false);
+
+                if(records != null)
+                {
+                    foreach (var item in records)
+                    {
+                        context.Remove(item);
+                    }
+                    context.SaveChanges();
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error removing user's drafts.", ex);
+            }
+        }
+
+        public static JsonObject CalculateGrossFinanceRecordValue(RavenDbContext context, FinanceRecord record)
+        {
+            try
+            {
+                List<StatementItem> statementItems = context.StatementItems.Where(s => s.FinanceRecordId == record.FinanceRecordId).ToList();
+
+                JsonObject json = new JsonObject();
+                decimal depositTotal = 0;
+                decimal expenseTotal = 0;
+                decimal netTotal = 0;
+
+                var depositItems = statementItems.Where(s => s.ItemType == StatementItem.StatementItemType.Deposit).ToList();
+                var expenseItems = statementItems.Where(r => r.ItemType == StatementItem.StatementItemType.Expense).ToList();
+
+                foreach (var item in depositItems)
+                {
+                    depositTotal += item.Amount;
+                }
+                foreach (var item in expenseItems)
+                {
+                    expenseTotal = +item.Amount;
+                }
+
+                netTotal = depositTotal - expenseTotal;
+
+                json["depositTotal"] = depositTotal;
+                json["expenseTotal"] = expenseTotal;
+                json["netTotal"] = netTotal;
+
+
+                return json;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving statement items.", ex);
             }
         }
     }
