@@ -35,8 +35,9 @@ namespace RavenFinance.Controllers
                     return View("Index");
                 }
             }
-            ViewBag.ErrorMessage = "User not found.";
-            return RedirectToAction("Logout", "Login");
+            HttpContext.Session.Clear();
+            TempData["ErrorMessage"] = "Invalid user, please login to continue";
+            return RedirectToAction("Index", "Login");
         }
 
         [HttpGet]
@@ -107,8 +108,9 @@ namespace RavenFinance.Controllers
             }
             else
             {
-                ViewBag.ErrorMessage = "User not found.";
-                return RedirectToAction("Logout", "Login");
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
 
             }
         }
@@ -121,8 +123,8 @@ namespace RavenFinance.Controllers
 
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not logged in. Please login to continue.";
-               // HelperUser.DestroyUserSession(HttpContext);
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             if(id > 0)
@@ -204,8 +206,9 @@ namespace RavenFinance.Controllers
             }
             else
             {
-                ViewBag.ErrorMessage = "User not found.";
-                return RedirectToAction("Logout", "Login");
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
 
             }
         }
@@ -237,8 +240,9 @@ namespace RavenFinance.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "User not found.";
-                return RedirectToAction("Logout", "Login");
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
             }
         }
 
@@ -263,8 +267,9 @@ namespace RavenFinance.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "User not found.";
-                return RedirectToAction("Logout", "Login");
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
             }
         }
 
@@ -299,8 +304,9 @@ namespace RavenFinance.Controllers
             }
             else
             {
-                TempData["ErrorMessage"] = "User not found.";
-                return RedirectToAction("Logout", "Login");
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
             }
         }
     }

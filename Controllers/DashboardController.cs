@@ -35,10 +35,15 @@ namespace RavenFinance.Controllers
                     ViewBag.ErrorMessage = "An error occurred while retrieving the user profile: " + ex.Message;
                     return View("Index");
                 }
-                
+
             }
-            ViewBag.ErrorMessage = "User profile not found.";
-            return View("Index");
+            else
+            {
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
+            }
+            
         }
 
        

@@ -26,7 +26,13 @@ namespace RavenFinance.Controllers
                 var user = HelperUser.GetUserById(dbContext, userId.Value);
                 return View("Profile", user);
             }
-            return View("Profile");
+            else
+            {
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
+            }
+           
         }
 
 
@@ -47,8 +53,12 @@ namespace RavenFinance.Controllers
                 }
 
             }
-            ViewBag.ErrorMessage = "User profile not found.";
-            return View("Profile");
+            else
+            {
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
+            }
         }
 
         public IActionResult EditProfile()
@@ -67,8 +77,12 @@ namespace RavenFinance.Controllers
                     return View("Profile");
                 }
             }
-            ViewBag.ErrorMessage = "User profile not found.";
-            return View("Profile");
+            else
+            {
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                return RedirectToAction("Index", "Login");
+            }
         }
 
         public IActionResult UpdateProfile(int id, string FirstName, string LastName, string Email, string Password)
@@ -92,8 +106,9 @@ namespace RavenFinance.Controllers
                 }
                 else
                 {
-                    ViewBag.ErrorMessage = "User not found.";
-                    return View("Profile");
+                    HttpContext.Session.Clear();
+                    TempData["ErrorMessage"] = "Invalid user, please login to continue";
+                    return RedirectToAction("Index", "Login");
                 }
             }
             catch (Exception ex)

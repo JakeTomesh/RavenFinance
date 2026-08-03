@@ -39,6 +39,7 @@ namespace RavenFinance.Models
             }
         }
 
+
         public static User? IsValidLogin(RavenDbContext context, string Email, string Password)
         {
             if(Email != null && Password != null)

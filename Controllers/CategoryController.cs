@@ -72,7 +72,11 @@ namespace RavenFinance.Controllers
             {
                 User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                 if (user == null)
+                {
+                    HttpContext.Session.Clear();
+                    TempData["ErrorMessage"] = "Invalid user, please login to continue";
                     return RedirectToAction("Index", "Login");
+                }
 
                 Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
         
@@ -100,7 +104,11 @@ namespace RavenFinance.Controllers
             {
                 User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                 if (user == null)
+                {
+                    HttpContext.Session.Clear();
+                    TempData["ErrorMessage"] = "Invalid user, please login to continue";
                     return RedirectToAction("Index", "Login");
+                }
 
                 Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
                 if (category != null)
@@ -133,7 +141,8 @@ namespace RavenFinance.Controllers
                     User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                     if (user == null)
                     {
-                        TempData["ErrorMessage"] = "User not found.";
+                        HttpContext.Session.Clear();
+                        TempData["ErrorMessage"] = "Invalid user, please login to continue";
                         return RedirectToAction("Index", "Login");
                     }
                     Category? category = HelperUser.GetCategoryByCategoryIdAndUserId(dbContext, categoryId, user.UserId);
@@ -162,7 +171,8 @@ namespace RavenFinance.Controllers
                     User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                     if(user == null)
                     {
-                        TempData["ErrorMessage"] = "User not found.";
+                        HttpContext.Session.Clear();
+                        TempData["ErrorMessage"] = "Invalid user, please login to continue";
                         return RedirectToAction("Index", "Login");
                     }
 

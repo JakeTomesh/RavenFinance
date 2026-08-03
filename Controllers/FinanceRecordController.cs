@@ -40,6 +40,7 @@ namespace RavenFinance.Controllers
                 var user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
                 if(user == null)
                 {
+                    HttpContext.Session.Clear();
                     TempData["ErrorMessage"] = "Invalid user, please login to continue";
                     return RedirectToAction("Index", "Login");
                 }
@@ -47,6 +48,7 @@ namespace RavenFinance.Controllers
                 FinanceRecord record = HelperUser.GetFinanceRecordById(dbContext, financeRecordId, user.UserId);
                 if(record == null)
                 {
+                    
                     TempData["ErrorMessage"] = "Error retrieving finance record.";
                     return RedirectToAction("Index");
                 }
@@ -167,6 +169,7 @@ namespace RavenFinance.Controllers
                 }
                 else
                 {
+                    HttpContext.Session.Clear();
                     TempData["ErrorMessage"] = "Invalid user, please login to continue";
                     return RedirectToAction("Index", "Login");
                 }
@@ -192,6 +195,7 @@ namespace RavenFinance.Controllers
 
             if(user == null)
             {
+                HttpContext.Session.Clear();
                 TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
@@ -232,8 +236,7 @@ namespace RavenFinance.Controllers
                 TempData["ErrorMessage"] = ex.Message;
                 return View("PaymentSource");
             }
-            //add statement items to payment source
-            //return to payment source selection
+        
 
         }
 
@@ -247,6 +250,7 @@ namespace RavenFinance.Controllers
 
             if (user == null)
             {
+                HttpContext.Session.Clear();
                 TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }

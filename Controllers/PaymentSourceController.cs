@@ -20,7 +20,8 @@ namespace RavenFinance.Controllers
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
             if(user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             List<PaymentSource> paymentSources = HelperUser.GetPaymentSourcesByUserId(dbContext, user.UserId);
@@ -37,8 +38,11 @@ namespace RavenFinance.Controllers
         public IActionResult Create(PaymentSource paymentSource)
         {
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
-            if (user == null)
+            if (user == null){
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
+            }
 
             if(!ModelState.IsValid)
                 return View(paymentSource);
@@ -63,7 +67,8 @@ namespace RavenFinance.Controllers
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             if (ModelState.IsValid)
@@ -85,7 +90,8 @@ namespace RavenFinance.Controllers
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             if (ModelState.IsValid)
@@ -117,7 +123,8 @@ namespace RavenFinance.Controllers
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             if (ModelState.IsValid)
@@ -146,7 +153,8 @@ namespace RavenFinance.Controllers
             User? user = HelperUser.ValidateCurrentUser(dbContext, HttpContext);
             if (user == null)
             {
-                TempData["ErrorMessage"] = "User not found.";
+                HttpContext.Session.Clear();
+                TempData["ErrorMessage"] = "Invalid user, please login to continue";
                 return RedirectToAction("Index", "Login");
             }
             if (ModelState.IsValid)
