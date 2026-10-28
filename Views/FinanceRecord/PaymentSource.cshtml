@@ -1,55 +1,82 @@
-﻿@model RavenFinance.Models.FinanceRecordPaymentSourceViewModel
+@model RavenFinance.Models.FinanceRecordPaymentSourceViewModel
 @{
     ViewData["Title"] = "Payment Source Selection";
+    bool hasSources = Model?.PaymentSources != null && Model.PaymentSources.Any();
+    bool hasSavings = Model?.SavingSources != null && Model.SavingSources.Any();
 }
 
-<partial name="_UserMessage" />
+<div class="date-select card bg-dark-subtle text-dark mx-auto my-4">
+    <div class="card-body p-4">
+        <p class="text-uppercase small mb-1 date-step">Step 2 of 4</p>
+        <h2 class="h3">Choose where the money moved</h2>
+        <p class="mb-2">
+            Pick a payment source to add its deposits and expenses, such as a paycheck, a purchase or a bill.
+            You will return to this screen after each one, so you can add items to as many sources as you need.
+        </p>
+        <p class="mb-4">
+            The number beside each source is how many items it already has in this record.
+            When every source is filled in, choose <strong>Continue to savings</strong>.
+        </p>
 
-<h2>@ViewData["Title"]</h2>
-<p>Select a payment source to input statement items.</p>
+        <partial name="_UserMessage" />
 
-<form asp-action="PaymentSource" asp-controller="FinanceRecord" method="get">
-    <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+        @* Choosing a source opens the statement item form for it *@
+        <form asp-action="PaymentSource" asp-controller="FinanceRecord" method="get">
+            <input type="hidden" name="financeRecordId" value="@Model!.FinanceRecordId" />
 
-    <div class="container">
-
-        @if (Model?.PaymentSources != null)
-        {
-            @foreach (var item in Model.PaymentSources)
+            <h3 class="h6 text-uppercase date-step">Payment sources</h3>
+            @if (hasSources)
             {
-                <div class="row justify-content-center mb-3">
-                    <div class="col-md-6">
-                        <button class="btn btn-outline-dark bg-dark-subtle w-100"
-                                type="submit"
-                                name="paymentSourceId"
-                                value="@item.PaymentSourceId">
-
-                            @item.Name - # of statement items (@(item.StatementItemCount))
-
+                <div class="list-group mb-4">
+                    @foreach (var item in Model.PaymentSources)
+                    {
+                        <button type="submit" name="paymentSourceId" value="@item.PaymentSourceId"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">@item.Name</span>
+                            <span class="badge @(item.StatementItemCount > 0 ? "bg-success" : "bg-secondary") rounded-pill">
+                                @item.StatementItemCount @(item.StatementItemCount == 1 ? "item" : "items")
+                            </span>
                         </button>
-                    </div>
+                    }
                 </div>
             }
-        }
+            else
+            {
+                <p class="text-muted">You have no payment sources yet. Add one from the dashboard, or continue to savings.</p>
+            }
 
-    </div>
-</form>
+            @if (hasSavings)
+            {
+                <h3 class="h6 text-uppercase date-step">Savings accounts <span class="text-lowercase">(expenses only)</span></h3>
+                <div class="list-group mb-4">
+                    @foreach (var saving in Model.SavingSources)
+                    {
+                        <button type="submit" name="savingId" value="@saving.SavingId"
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <span>
+                                <span class="fw-semibold">@saving.Name</span>
+                                <span class="text-muted ms-2">Balance @saving.Balance.ToString("C")</span>
+                            </span>
+                            <span class="badge @(saving.StatementItemCount > 0 ? "bg-success" : "bg-secondary") rounded-pill">
+                                @saving.StatementItemCount @(saving.StatementItemCount == 1 ? "item" : "items")
+                            </span>
+                        </button>
+                    }
+                </div>
+            }
+        </form>
 
-<form asp-action="Saving" asp-controller="FinanceRecord" method="get">
-    <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+        <div class="d-flex flex-wrap justify-content-between gap-2">
+            @* Exit the process; the record stays incomplete and shows as a yellow draft on the dashboard *@
+            <form asp-action="SaveDraft" asp-controller="FinanceRecord" method="post">
+                <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                <button type="submit" class="btn btn-warning">Save as draft</button>
+            </form>
 
-    <div class="container">
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-6">
-                <button class="btn btn-success w-100">
-                    Save and Continue to Savings
-                </button>
-            </div>
+            <form asp-action="Saving" asp-controller="FinanceRecord" method="get">
+                <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                <button type="submit" class="btn btn-success btn-lg">Continue to savings</button>
+            </form>
         </div>
     </div>
-</form>
- 
- <p>Show list of all payment sources for user.</p>
- <p>Show how many statement items a payment source has for this instance of finance record.</p>
- <p>User can continue to add statement items to all payment sources.</p>
- <p>Once finished, user clicks continue to Savings</p>
+</div>

@@ -18,10 +18,44 @@ namespace RavenFinance.Data
         public DbSet<Saving> Savings { get; set; }
         public DbSet<FinanceRecord> FinanceRecords { get; set; }
         public DbSet<StatementItem> StatementItems { get; set; }
+        public DbSet<SavingContribution> SavingContributions { get; set; }
+
+        /// <summary>Dashboard to-do notes, stored in the "Task" table.</summary>
+        public DbSet<TaskItem> TaskItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Task list: table is named "Task"; a user's tasks are removed with the user
+            modelBuilder.Entity<TaskItem>().ToTable("Task");
+            modelBuilder.Entity<User>()
+                .HasMany<TaskItem>()
+                .WithOne(t => t.User)
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Saving -> Contributions: Restrict (avoid multiple cascade paths)
+            modelBuilder.Entity<Saving>()
+                .HasMany(s => s.Contributions)
+                .WithOne(c => c.Saving)
+                .HasForeignKey(c => c.SavingId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // FinanceRecord -> Contributions: Cascade delete with the record
+            modelBuilder.Entity<FinanceRecord>()
+                .HasMany<SavingContribution>()
+                .WithOne(c => c.FinanceRecord)
+                .HasForeignKey(c => c.FinanceRecordId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SavingContribution>()
+                .Property(c => c.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Saving>()
+                .Property(s => s.Amount)
+                .HasPrecision(18, 2);
 
             // FinanceRecord -> StatementItems: Cascade delete
             modelBuilder.Entity<FinanceRecord>()

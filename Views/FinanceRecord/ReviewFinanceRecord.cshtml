@@ -1,0 +1,245 @@
+@model RavenFinance.Models.ReviewFinanceRecordViewModel
+@{
+    ViewData["Title"] = "Review Finance Record";
+    // Drafts and completed records are both editable; completed records stay complete after changes.
+    bool editable = true;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@* ---------- Date range (editable) ---------- *@
+<h4>Date range</h4>
+@if (editable)
+{
+    <form asp-action="EditRecordDates" method="post" class="row g-2 align-items-end mb-4">
+        <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+        <div class="col-auto">
+            <label class="form-label" for="dateStart">Start</label>
+            <input type="date" id="dateStart" name="dateStart" class="form-control" value="@Model.DateStart.ToString("yyyy-MM-dd")" required />
+        </div>
+        <div class="col-auto">
+            <label class="form-label" for="dateEnd">End</label>
+            <input type="date" id="dateEnd" name="dateEnd" class="form-control" value="@Model.DateEnd.ToString("yyyy-MM-dd")" required />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-outline-primary">Update dates</button>
+        </div>
+    </form>
+}
+else
+{
+    <p>@Model.DateStart.ToString("d") - @Model.DateEnd.ToString("d")</p>
+}
+
+@* ---------- Statement items, grouped by payment source ---------- *@
+<h4>Payment sources and statement items</h4>
+@if (!Model.PaymentSourceGroups.Any())
+{
+    <p class="text-muted">No statement items have been added to this record.</p>
+}
+@{
+    var sections = new[]
+    {
+        (Type: RavenFinance.Models.StatementItem.StatementItemType.Expense, Label: "Expenses", Badge: "bg-danger", Text: "text-danger", Border: "border-danger"),
+        (Type: RavenFinance.Models.StatementItem.StatementItemType.Deposit, Label: "Deposits", Badge: "bg-success", Text: "text-success", Border: "border-success")
+    };
+}
+@foreach (var sec in sections)
+{
+    var sectionGroups = Model.PaymentSourceGroups
+        .Select(g => new { Group = g, Items = g.Items.Where(i => i.ItemType == sec.Type).ToList() })
+        .Where(x => x.Items.Any())
+        .ToList();
+    if (!sectionGroups.Any())
+    {
+        continue;
+    }
+    decimal sectionTotal = sectionGroups.Sum(x => x.Items.Sum(i => i.Amount));
+
+    <div class="d-flex justify-content-between align-items-center border-bottom border-2 @sec.Border pb-1 mt-4 mb-3">
+        <h5 class="mb-0"><span class="badge @sec.Badge me-2">@sec.Label</span>@sec.Label by payment source</h5>
+        <span class="fw-bold @sec.Text">Total @sec.Label: @sectionTotal.ToString("C")</span>
+    </div>
+
+    @foreach (var entry in sectionGroups)
+    {
+        <div class="card mb-3 border-start border-4 @sec.Border">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <strong>@entry.Group.PaymentSourceName</strong>
+                    <span class="badge @sec.Badge ms-2">@sec.Label</span>
+                </span>
+                <span class="@sec.Text fw-semibold">@entry.Items.Sum(i => i.Amount).ToString("C")</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Merchant</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Recurring</th>
+                            <th class="text-end">Amount</th>
+                            @if (editable) { <th></th> }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in entry.Items)
+                        {
+                            <tr>
+                                <td>@item.DateOfTransaction.ToString("d")</td>
+                                <td>@item.Merchant</td>
+                                <td>@item.Description</td>
+                                <td>@item.Category?.Name</td>
+                                <td>@(item.IsMonthlyRecurringBill ? "Yes" : "No")</td>
+                                <td class="text-end @sec.Text">@item.Amount.ToString("C")</td>
+                                @if (editable)
+                                {
+                                    <td class="text-end text-nowrap">
+                                        <a asp-action="EditStatementItem" asp-route-statementItemId="@item.StatementItemId" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                        <form asp-action="DeleteStatementItem" method="post" class="d-inline"
+                                              onsubmit="return confirm('Remove this statement item?');">
+                                            <input type="hidden" name="statementItemId" value="@item.StatementItemId" />
+                                            <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                        </form>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}
+
+@* ---------- Savings contributions (only shown if any exist) ---------- *@
+@if (Model.Contributions.Any())
+{
+    <h4>Savings contributions</h4>
+    <table class="table table-sm w-auto">
+        <thead>
+            <tr>
+                <th>Savings account</th>
+                <th>Committed</th>
+                <th>Amount</th>
+                @if (editable) { <th></th> }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.Contributions)
+            {
+                <tr>
+                    <td>@c.Saving?.Name</td>
+                    <td>@c.DateCommitted.ToLocalTime().ToString("g")</td>
+                    @if (editable)
+                    {
+                        <td>
+                            @* Inline edit: server validates against the balance available *@
+                            <form asp-action="EditSavingContribution" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="contributionId" value="@c.SavingContributionId" />
+                                <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                                <input type="number" name="amount" step="0.01" min="0.01" class="form-control form-control-sm"
+                                       value="@c.Amount.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                            </form>
+                        </td>
+                        <td>
+                            <form asp-action="DeleteSavingContribution" method="post"
+                                  onsubmit="return confirm('Remove this contribution?');">
+                                <input type="hidden" name="contributionId" value="@c.SavingContributionId" />
+                                <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                            </form>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>@c.Amount.ToString("C")</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* ---------- Totals by category (used, non-zero categories only) ---------- *@
+@if (Model.CategoryBalances.Any())
+{
+    <h4>Category totals</h4>
+    <table class="table table-sm w-auto">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.CategoryBalances)
+            {
+                <tr>
+                    <td>@c.CategoryName</td>
+                    <td class="text-end">@c.Balance.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@* ---------- Overall summary ---------- *@
+<h4>Summary</h4>
+<table class="table table-bordered w-auto">
+    <tbody>
+        <tr><th scope="row">Total Deposits</th><td class="text-success">@Model.DepositTotal.ToString("C")</td></tr>
+        <tr><th scope="row">Total Expenses</th><td class="text-danger">@Model.ExpenseTotal.ToString("C")</td></tr>
+        <tr><th scope="row">Net Balance</th><td class="@(Model.NetTotal >= 0 ? "text-success" : "text-danger")">@Model.NetTotal.ToString("C")</td></tr>
+        <tr><th scope="row">Committed to Savings</th><td>@Model.SavingsTotal.ToString("C")</td></tr>
+        <tr><th scope="row">Remaining Balance</th><td class="@(Model.RemainingTotal >= 0 ? "text-success" : "text-danger") fw-bold">@Model.RemainingTotal.ToString("C")</td></tr>
+    </tbody>
+</table>
+
+@* ---------- Navigation and confirmation ---------- *@
+@if (editable)
+{
+    <div class="d-flex gap-2">
+        <a asp-action="GetPaymentSourceSelectionView" asp-route-financeRecordId="@Model.FinanceRecordId" class="btn btn-outline-secondary">Add more items</a>
+        <a asp-action="Saving" asp-route-financeRecordId="@Model.FinanceRecordId" class="btn btn-outline-secondary">Back to savings</a>
+        @* Confirming marks a draft complete (IsComplete = true); for completed records it re-saves and re-syncs recurring bills *@
+        <form asp-action="ConfirmFinanceRecord" method="post"
+              onsubmit="return confirm('@(Model.IsComplete ? "Save your changes to this finance record?" : "Confirm and submit this finance record?")');">
+            <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+            <button type="submit" class="btn btn-success">@(Model.IsComplete ? "Save changes" : "Confirm finance record")</button>
+        </form>
+        @* Leaves the record incomplete so it appears on the dashboard as a yellow draft *@
+        @if (!Model.IsComplete)
+        {
+            <form asp-action="SaveDraft" method="post">
+                <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+                <button type="submit" class="btn btn-warning">Save as draft</button>
+            </form>
+        }
+        
+        @* Soft delete lives here (not on the dashboard) to avoid accidental deletion. The record is flagged IsDeleted, not removed. *@
+        <form asp-action="DeleteFinanceRecord" method="post" class="ms-auto"
+              onsubmit="return confirm('Delete this entire finance record? It will be removed from your drafts and history.');">
+            <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+            <button type="submit" class="btn btn-outline-danger">Delete finance record</button>
+        </form>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">This finance record has been submitted and is read-only.</div>
+    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Back to dashboard</a>
+}

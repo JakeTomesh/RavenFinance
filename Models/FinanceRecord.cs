@@ -12,6 +12,9 @@
         public DateOnly DateEnd { get; set; }
 
         public bool IsComplete { get; set; } = false;
+
+        // Soft delete flag: deleted records are kept in the database but hidden from drafts/completed lists
+        public bool IsDeleted { get; set; } = false;
         
         //user selects payment source and creates new statement items for income & expenses
         public required ICollection<StatementItem> StatementItems= new List<StatementItem>();

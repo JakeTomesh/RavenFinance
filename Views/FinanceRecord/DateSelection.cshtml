@@ -1,17 +1,90 @@
 ﻿@model RavenFinance.Models.FinanceRecord
 @{
+    ViewData["Title"] = "Select dates";
 }
 
+<div class="date-select card bg-dark-subtle text-dark mx-auto my-4">
+    <div class="card-body p-4">
+        <p class="text-uppercase small mb-1 date-step">Step 1 of 4</p>
+        <h2 class="h3">Choose the dates for your finance record</h2>
+        <p class="mb-4">
+            A finance record covers a period of time, usually one month. Pick the first and last day
+            that your deposits and expenses should fall in, or use a quick pick below.
+            Your recurring bills inside this range are added for you, and you can change the dates later.
+        </p>
 
-<partial name="_UserMessage" />
+        <partial name="_UserMessage" />
 
-<p>Select the date range of new finacne record.</p>
-<form asp-action="DateSelection" asp-controller="FinanceRecord" method="post">
-    <label asp-for="DateStart"></label>
-    <input type="date" asp-for="DateStart" />
-    
-    <label asp-for="DateEnd"></label>
-    <input type="date" asp-for="DateEnd" />
-    
-    <button type="submit">Next</button>
-</form>
+        <div class="mb-3">
+            <span class="form-label d-block">Quick picks</span>
+            <div class="btn-group flex-wrap" role="group" aria-label="Quick date ranges">
+                <button type="button" class="btn btn-outline-secondary" data-range="thisMonth">This month</button>
+                <button type="button" class="btn btn-outline-secondary" data-range="lastMonth">Last month</button>
+                <button type="button" class="btn btn-outline-secondary" data-range="last30">Last 30 days</button>
+            </div>
+        </div>
+
+        <form asp-action="DateSelection" asp-controller="FinanceRecord" method="post" id="date-form">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="DateStart" class="form-label">Start date</label>
+                    <input type="date" asp-for="DateStart" class="form-control form-control-lg" required />
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="DateEnd" class="form-label">End date</label>
+                    <input type="date" asp-for="DateEnd" class="form-control form-control-lg" required />
+                </div>
+            </div>
+
+            <p id="date-summary" class="fw-semibold mb-3" aria-live="polite"></p>
+
+            <div class="d-flex justify-content-between">
+                <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-success btn-lg" id="date-next">Next: choose a payment source</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Quick picks fill both dates; the summary shows the span and blocks an end date before the start date.
+        (function () {
+            const start = document.getElementById("DateStart");
+            const end = document.getElementById("DateEnd");
+            const summary = document.getElementById("date-summary");
+            const next = document.getElementById("date-next");
+            const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+            const fmt = s => new Date(s + "T00:00:00").toLocaleDateString(undefined, { dateStyle: "medium" });
+
+            function update() {
+                summary.className = "fw-semibold mb-3";
+                next.disabled = false;
+                if (!start.value || !end.value) { summary.textContent = "Select a start and end date."; return; }
+                if (end.value < start.value) {
+                    summary.textContent = "The end date must be on or after the start date.";
+                    summary.classList.add("text-danger");
+                    next.disabled = true;
+                    return;
+                }
+                const days = Math.round((new Date(end.value) - new Date(start.value)) / 86400000) + 1;
+                summary.textContent = `${fmt(start.value)} to ${fmt(end.value)} (${days} day${days === 1 ? "" : "s"})`;
+            }
+
+            document.querySelectorAll("[data-range]").forEach(btn => btn.addEventListener("click", () => {
+                const t = new Date();
+                let a, b;
+                if (btn.dataset.range === "thisMonth") { a = new Date(t.getFullYear(), t.getMonth(), 1); b = new Date(t.getFullYear(), t.getMonth() + 1, 0); }
+                else if (btn.dataset.range === "lastMonth") { a = new Date(t.getFullYear(), t.getMonth() - 1, 1); b = new Date(t.getFullYear(), t.getMonth(), 0); }
+                else { b = t; a = new Date(t.getFullYear(), t.getMonth(), t.getDate() - 29); }
+                start.value = iso(a);
+                end.value = iso(b);
+                update();
+            }));
+
+            start.addEventListener("input", update);
+            end.addEventListener("input", update);
+            update();
+        })();
+    </script>
+}

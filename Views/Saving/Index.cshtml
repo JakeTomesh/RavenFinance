@@ -24,6 +24,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th class="text-end">Balance</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -32,13 +33,14 @@
                     {
                         <tr>
                             <td>@saving.Name</td>
+                            <td class="text-end">@saving.Balance.ToString("C")</td>
 
                             <td>
 
-                                <a asp-action="Edit" asp-route-categoryId="@saving.SavingId" class="btn btn-sm btn-warning" title="Edit">
+                                <a asp-action="Edit" asp-route-savingId="@saving.SavingId" class="btn btn-sm btn-warning" title="Edit">
                                     <i class="bi bi-pencil">Edit</i>
                                 </a>
-                                <a asp-action="Delete" asp-route-categoryId="@saving.SavingId" class="btn btn-sm btn-danger">
+                                <a asp-action="Delete" asp-route-savingId="@saving.SavingId" class="btn btn-sm btn-danger">
                                     <i class="bi bi-trash">Delete</i>
                                 </a>
                             </td>

@@ -151,9 +151,9 @@ namespace RavenFinance.Controllers
 
 
         [HttpGet]
-        public IActionResult Edit(int savingId)
+        public IActionResult Edit(int SavingId)
         {
-            if (savingId > 0)
+            if (SavingId > 0)
             {
                 try
                 {
@@ -164,7 +164,7 @@ namespace RavenFinance.Controllers
                         TempData["ErrorMessage"] = "Invalid user, please login to continue";
                         return RedirectToAction("Index", "Login");
                     }
-                    Saving? saving = HelperUser.GetSavingById(dbContext, savingId, user.UserId);
+                    Saving? saving = HelperUser.GetSavingById(dbContext, SavingId, user.UserId);
                     return View(saving);
                 }
                 catch (Exception ex)

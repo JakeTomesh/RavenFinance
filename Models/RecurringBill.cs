@@ -10,22 +10,23 @@
         public required decimal Amount { get; set; }
         public int DueDate { get; set; }
         public string? Notes { get; set; }
-        public bool IsSplit { get; set; }
+
+        // Expense bills are added to finance records as expenses, deposit bills as deposits
+        public StatementItem.StatementItemType ItemType { get; set; } = StatementItem.StatementItemType.Expense;
         public int PaymentSourceId { get; set; }
         public PaymentSource? PaymentSource { get; set; }
 
         public RecurringBill() { }
 
-        public RecurringBill(int userId, string name, decimal amount, int dueDate, Category category, PaymentSource paymentSource, string notes, bool isSplit)
+        public RecurringBill(int userId, string name, decimal amount, int dueDate, Category category, PaymentSource paymentSource, string notes)
         {
-            userId = UserId;
-            name = Name;
-            amount = Amount;
-            dueDate = DueDate;
-            category = Category;
-            paymentSource = PaymentSource;
-            notes = Notes;
-            isSplit = IsSplit;
+            UserId = userId;
+            Name = name;
+            Amount = amount;
+            DueDate = dueDate;
+            Category = category;
+            PaymentSource = paymentSource;
+            Notes = notes;
         }
     }
 }

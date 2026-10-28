@@ -39,13 +39,13 @@
                 <input value="@Model.PaymentSource.Name" class="form-control" readonly />
             </div>
             <div>
+                <label asp-for="ItemType">Type</label>
+                <input value="@Model.ItemType" class="form-control" readonly />
+            </div>
+            <div>
                 <label asp-for="Notes"></label>
                 <textarea asp-for="Notes" rows="7" cols="10" class="form-control" readonly></textarea>
             </div>
-            <div>
-                <label asp-for="IsSplit"></label>
-                <input asp-for="IsSplit" type="checkbox" value="@Model.IsSplit" readonly disabled/>
-            </div>
         </div>
-       
+
 </div>

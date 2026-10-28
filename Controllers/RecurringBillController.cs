@@ -74,7 +74,7 @@ namespace RavenFinance.Controllers
                         PaymentSourceId = recurringBill.PaymentSourceId,
                         //PaymentSource = recurringBill.PaymentSource,
                         Notes = recurringBill.Notes,
-                        IsSplit = recurringBill.IsSplit
+                        ItemType = recurringBill.ItemType
                     };
                     //use category id to populate category object into constructor
                     //same for payment source

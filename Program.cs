@@ -3,6 +3,12 @@ using RavenFinance.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Show negative currency as a literal minus (-$50.00) instead of parentheses ($50.00)
+var appCulture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.CurrentCulture.Clone();
+appCulture.NumberFormat.CurrencyNegativePattern = 1;
+System.Globalization.CultureInfo.DefaultThreadCurrentCulture = appCulture;
+System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = appCulture;
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<RavenDbContext>(options =>

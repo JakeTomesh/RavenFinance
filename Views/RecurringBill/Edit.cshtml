@@ -51,12 +51,15 @@
                 </select>
             </div>
             <div>
-                <label asp-for="Notes"></label>
-                <textarea asp-for="Notes" rows="7" cols="10" class="form-control"></textarea>
+                <label asp-for="ItemType">Type</label>
+                <select asp-for="ItemType" class="form-control">
+                    <option value="@((int)RavenFinance.Models.StatementItem.StatementItemType.Expense)">Expense</option>
+                    <option value="@((int)RavenFinance.Models.StatementItem.StatementItemType.Deposit)">Deposit</option>
+                </select>
             </div>
             <div>
-                <label asp-for="IsSplit"></label>
-                <input asp-for="IsSplit" type="checkbox" />
+                <label asp-for="Notes"></label>
+                <textarea asp-for="Notes" rows="7" cols="10" class="form-control"></textarea>
             </div>
         </div>
         <button class="btn btn-success mt-1" type="submit">Update Recurring Bill</button>

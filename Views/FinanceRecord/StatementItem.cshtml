@@ -31,6 +31,7 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <input type="hidden" asp-for="PaymentSourceId" />
+                <input type="hidden" asp-for="SavingId" />
                 <input type="hidden" asp-for="FinanceRecordId" />
 
                 <div class="mb-3">
@@ -91,10 +92,13 @@
                             <input asp-for="ItemType" type="radio" value="@((int)StatementItemCreateViewModel.StatementItemType.Expense)" class="form-check-input" id="typeExpense" checked />
                             <label class="form-check-label" for="typeExpense">Expense</label>
                         </div>
+                        @if (!Model.SavingId.HasValue)
+                        {
                         <div class="form-check">
                             <input asp-for="ItemType" type="radio" value="@((int)StatementItemCreateViewModel.StatementItemType.Deposit)" class="form-check-input" id="typeDeposit" />
                             <label class="form-check-label" for="typeDeposit">Deposit</label>
                         </div>
+                        }
                     </div>
                     <span asp-validation-for="ItemType" class="text-danger"></span>
                 </div>

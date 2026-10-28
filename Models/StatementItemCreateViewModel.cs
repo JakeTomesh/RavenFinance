@@ -11,6 +11,9 @@ namespace RavenFinance.Models
         [Required]
         public int PaymentSourceId { get; set; }
 
+        // Set when the item is paid from a savings account (expenses only)
+        public int? SavingId { get; set; }
+
         public int StatementItemId { get; set; }
 
         [Required(ErrorMessage = "Date must be current day or in the past.")]

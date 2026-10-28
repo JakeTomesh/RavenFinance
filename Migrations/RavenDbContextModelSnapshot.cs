@@ -17,7 +17,7 @@ namespace RavenFinance.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.8")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -57,6 +57,9 @@ namespace RavenFinance.Migrations
                         .HasColumnType("date");
 
                     b.Property<bool>("IsComplete")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<int>("UserId")
@@ -112,8 +115,8 @@ namespace RavenFinance.Migrations
                     b.Property<int>("DueDate")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsSplit")
-                        .HasColumnType("bit");
+                    b.Property<int>("ItemType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -145,6 +148,10 @@ namespace RavenFinance.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SavingId"));
 
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -155,6 +162,39 @@ namespace RavenFinance.Migrations
                     b.HasKey("SavingId");
 
                     b.ToTable("Savings");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.SavingContribution", b =>
+                {
+                    b.Property<int>("SavingContributionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SavingContributionId"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DateCommitted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FinanceRecordId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SavingId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SavingContributionId");
+
+                    b.HasIndex("FinanceRecordId");
+
+                    b.HasIndex("SavingId");
+
+                    b.ToTable("SavingContributions");
                 });
 
             modelBuilder.Entity("RavenFinance.Models.StatementItem", b =>
@@ -190,7 +230,7 @@ namespace RavenFinance.Migrations
                     b.Property<string>("Merchant")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PaymentSourceId")
+                    b.Property<int?>("PaymentSourceId")
                         .HasColumnType("int");
 
                     b.Property<int?>("SavingId")
@@ -212,6 +252,31 @@ namespace RavenFinance.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("StatementItems");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.TaskItem", b =>
+                {
+                    b.Property<int>("TaskItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskItemId"));
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TaskItemId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Task", (string)null);
                 });
 
             modelBuilder.Entity("RavenFinance.Models.User", b =>
@@ -282,6 +347,25 @@ namespace RavenFinance.Migrations
                     b.Navigation("PaymentSource");
                 });
 
+            modelBuilder.Entity("RavenFinance.Models.SavingContribution", b =>
+                {
+                    b.HasOne("RavenFinance.Models.FinanceRecord", "FinanceRecord")
+                        .WithMany()
+                        .HasForeignKey("FinanceRecordId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RavenFinance.Models.Saving", "Saving")
+                        .WithMany("Contributions")
+                        .HasForeignKey("SavingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FinanceRecord");
+
+                    b.Navigation("Saving");
+                });
+
             modelBuilder.Entity("RavenFinance.Models.StatementItem", b =>
                 {
                     b.HasOne("RavenFinance.Models.Category", "Category")
@@ -299,10 +383,9 @@ namespace RavenFinance.Migrations
                     b.HasOne("RavenFinance.Models.PaymentSource", "PaymentSource")
                         .WithMany("StatementItems")
                         .HasForeignKey("PaymentSourceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("RavenFinance.Models.Saving", null)
+                    b.HasOne("RavenFinance.Models.Saving", "Saving")
                         .WithMany("StatementItem")
                         .HasForeignKey("SavingId");
 
@@ -317,6 +400,19 @@ namespace RavenFinance.Migrations
                     b.Navigation("FinanceRecord");
 
                     b.Navigation("PaymentSource");
+
+                    b.Navigation("Saving");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RavenFinance.Models.TaskItem", b =>
+                {
+                    b.HasOne("RavenFinance.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -333,6 +429,8 @@ namespace RavenFinance.Migrations
 
             modelBuilder.Entity("RavenFinance.Models.Saving", b =>
                 {
+                    b.Navigation("Contributions");
+
                     b.Navigation("StatementItem");
                 });
 #pragma warning restore 612, 618

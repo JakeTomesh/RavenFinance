@@ -1,5 +1,111 @@
-﻿
+@model RavenFinance.Models.SavingsViewModel
 @{
+    ViewData["Title"] = "Saving Options";
+
+    // GrossFinanceRecordValue is built by HelperUser.CalculateGrossFinanceRecordValue
+    // and contains the keys: depositTotal, expenseTotal, netTotal, savingsTotal, remainingTotal.
+    // Each value is read defensively: a missing key or null JSON value falls back to 0.
+    decimal deposits = Model.GrossFinanceRecordValue?["depositTotal"]?.GetValue<decimal>() ?? 0m;
+    decimal expenses = Model.GrossFinanceRecordValue?["expenseTotal"]?.GetValue<decimal>() ?? 0m;
+    decimal net = Model.GrossFinanceRecordValue?["netTotal"]?.GetValue<decimal>() ?? 0m;
+    decimal committed = Model.GrossFinanceRecordValue?["savingsTotal"]?.GetValue<decimal>() ?? 0m;
+    decimal remaining = Model.GrossFinanceRecordValue?["remainingTotal"]?.GetValue<decimal>() ?? 0m;
+
+    // Only a positive remaining balance can still be committed to savings.
+    bool canContribute = remaining > 0;
 }
-<p>User can add an amount to a savings object.</p>
-<p>User can add new savings object and add to it.</p>
+
+<div class="date-select card bg-dark-subtle text-dark mx-auto my-4">
+    <div class="card-body p-4">
+        <p class="text-uppercase small mb-1 date-step">Step 3 of 4</p>
+        <h2 class="h3">Put money aside</h2>
+        <p class="mb-4">
+            Commit some of your remaining balance to a savings account. You can commit to several accounts, one at a time,
+            or skip this step. When you are done, continue to the review.
+        </p>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+
+        @* Summary of the finance record being created *@
+        <h3 class="h6 text-uppercase date-step">This record so far</h3>
+        <ul class="list-group mb-4">
+            <li class="list-group-item d-flex justify-content-between"><span>Total deposits</span><span class="text-success">@deposits.ToString("C")</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Total expenses</span><span class="text-danger">@expenses.ToString("C")</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Net balance</span><span class="@(net >= 0 ? "text-success" : "text-danger") fw-bold">@net.ToString("C")</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span>Committed to savings</span><span>@committed.ToString("C")</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="fw-semibold">Remaining balance</span><span class="@(remaining >= 0 ? "text-success" : "text-danger") fw-bold">@remaining.ToString("C")</span></li>
+        </ul>
+
+        @* Current balance of each savings account (sum of its contributions) *@
+        @if (Model.SavingsOptions.Any())
+        {
+            <h3 class="h6 text-uppercase date-step">Your savings accounts</h3>
+            <ul class="list-group mb-4">
+                @foreach (var s in Model.SavingsOptions)
+                {
+                    <li class="list-group-item d-flex justify-content-between"><span>@s.Name</span><span class="fw-semibold">@s.Balance.ToString("C")</span></li>
+                }
+            </ul>
+        }
+
+        @* Contribution form: each commit is saved, then this page reloads with the updated remaining balance *@
+        @if (canContribute && Model.SavingsOptions.Any())
+        {
+            <h3 class="h6 text-uppercase date-step">Commit to savings</h3>
+            <p>
+                Choose an account and enter an amount, up to your remaining balance of <strong>@remaining.ToString("C")</strong>.
+            </p>
+
+            @* Posts to the Saving POST action. submitAction decides whether to stay or continue. *@
+            <form asp-action="Saving" asp-controller="FinanceRecord" method="post">
+                <input type="hidden" asp-for="FinanceRecordId" />
+
+                <div class="mb-3">
+                    <label asp-for="SelectedSavingId" class="form-label fw-semibold">Savings account</label>
+                    <select asp-for="SelectedSavingId" class="form-select form-select-lg"
+                            asp-items="@(new SelectList(Model.SavingsOptions, "SavingId", "Name"))">
+                        <option value="">-- Select a savings account --</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="ContributionAmount" class="form-label fw-semibold">Amount</label>
+                    @* Client-side max/min mirror the server-side validation; they are not a substitute for it *@
+                    <input asp-for="ContributionAmount" value="" type="number" class="form-control form-control-lg"
+                           step="0.01" min="0.01" max="@remaining.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button type="submit" name="submitAction" value="commit" class="btn btn-primary">Commit savings</button>
+                </div>
+            </form>
+        }
+        else if (canContribute)
+        {
+            <p class="text-muted">You have no savings accounts yet.</p>
+        }
+        else
+        {
+            <p class="text-danger">There is no remaining balance to contribute to savings for this finance record.</p>
+        }
+
+        @* Exit the process; the record stays incomplete and shows as a yellow draft on the dashboard *@
+        <form id="continueForm" asp-action="Saving" asp-controller="FinanceRecord" method="post">
+            <input type="hidden" asp-for="FinanceRecordId" />
+        </form>
+        <form id="draftForm" asp-action="SaveDraft" asp-controller="FinanceRecord" method="post">
+            <input type="hidden" name="financeRecordId" value="@Model.FinanceRecordId" />
+        </form>
+        <div class="d-flex gap-2">
+            <button type="submit" form="draftForm" class="btn btn-warning btn-lg flex-fill w-50">Save as draft</button>
+            <button type="submit" form="continueForm" name="submitAction" value="continue" formnovalidate class="btn btn-success btn-lg flex-fill w-50">Continue</button>
+        </div>
+    </div>
+</div>

@@ -24,6 +24,7 @@
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Type</th>
                         <th>Amount</th>
                         <th>Due Day of Month</th>
                         <th>Category</th>
@@ -36,10 +37,11 @@
                     {
                         <tr>
                             <td>@bill.Name</td>
-                            <td>@bill.Amount.ToString("C")</td>
+                            <td>@bill.ItemType</td>
+                            <td class="@(bill.ItemType == RavenFinance.Models.StatementItem.StatementItemType.Deposit ? "text-success" : "text-danger")">@bill.Amount.ToString("C")</td>
                             <td>@bill.DueDate</td>
-                            <td>@bill.Category.Name</td>
-                            <td>@bill.PaymentSource.Name</td>
+                            <td>@bill.Category?.Name</td>
+                            <td>@bill.PaymentSource?.Name</td>
                             
                             <td>
                                 <a asp-action="Details" asp-route-id="@bill.RecurringBillId" class="btn btn-sm btn-info" title="Details">

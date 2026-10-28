@@ -1,0 +1,62 @@
+@model RavenFinance.Models.StatementItemCreateViewModel
+@{
+    ViewData["Title"] = "Edit Statement Item";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+@* Posts to EditStatementItem. Payment source and record are fixed and re-read server side. *@
+<form asp-action="EditStatementItem" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="StatementItemId" />
+    <input type="hidden" asp-for="FinanceRecordId" />
+    <input type="hidden" asp-for="PaymentSourceId" />
+
+    <div class="mb-3">
+        <label asp-for="DateOfTransaction" class="form-label"></label>
+        <input asp-for="DateOfTransaction" type="date" class="form-control" />
+        <span asp-validation-for="DateOfTransaction" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Merchant" class="form-label"></label>
+        <input asp-for="Merchant" class="form-control" />
+        <span asp-validation-for="Merchant" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Amount" class="form-label"></label>
+        <input asp-for="Amount" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ItemType" class="form-label">Type</label>
+        <select asp-for="ItemType" class="form-select"
+                asp-items="Html.GetEnumSelectList<RavenFinance.Models.StatementItemCreateViewModel.StatementItemType>()"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" class="form-select" asp-items="Model.CategoryOptions">
+            <option value="">-- Select a category --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="IsMonthlyRecurringBill" class="form-check-input" />
+        <label asp-for="IsMonthlyRecurringBill" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save changes</button>
+    <a asp-action="ReviewFinanceRecord" asp-route-financeRecordId="@Model.FinanceRecordId" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

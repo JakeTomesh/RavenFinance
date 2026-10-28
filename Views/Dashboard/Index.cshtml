@@ -1,49 +1,119 @@
 ﻿
+@model RavenFinance.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
+    // Model is null when another action (e.g. Profile on error) renders this view without data
+    var data = Model ?? new RavenFinance.Models.DashboardViewModel();
 }
-<div>
+<div class="dashboard-layout">
+@* ---------- Task list: quick notes, left side, drag to reorder, completing deletes ---------- *@
+<aside class="task-aside">
+    <h2 class="h5">Tasks</h2>
+    <form id="task-add-form" class="mb-2">
+        <input id="task-add-input" class="form-control form-control-sm" maxlength="200" placeholder="Add a task and press Enter" autocomplete="off" />
+    </form>
+    <ul id="task-list" class="task-list">
+        @foreach (var task in data.Tasks)
+        {
+            <li class="task-item" data-id="@task.TaskItemId" draggable="true">
+                <input type="checkbox" class="form-check-input task-done" title="Mark complete" />
+                <span class="task-text" title="Double-click to edit">@task.Text</span>
+            </li>
+        }
+    </ul>
+    <p class="text-muted small mb-0">Double-click to edit. Drag to reorder. Checking a task removes it.</p>
+</aside>
+<div class="dashboard-main">
+<div class="dash-header">
     <h1>@ViewData["Title"]</h1>
+    <p class="text-muted mb-0">Your finance history at a glance.</p>
 </div>
 <partial name="_UserMessage" />
-<div>
-    <p>CONTROLS</p>
+<div class="dash-actions">
     <form asp-controller="FinanceRecord" asp-action="Index" method="get">
-        <button class="btn btn-success">Start a new monthly finance record</button>
+        <button class="btn btn-success dash-primary-action">+ New monthly finance record</button>
     </form>
     <form asp-controller="RecurringBill" asp-action="Index" method="get">
-        <button class="btn btn-danger">MONTHLY RECURRING BILLS</button>
+        <button class="btn btn-outline-secondary">Recurring bills</button>
     </form>
     <form asp-controller="Saving" asp-action="Index" method="get">
-        <button class="btn btn-danger">SAVINGS</button>
+        <button class="btn btn-outline-secondary">Savings</button>
     </form>
     <form asp-controller="Category" asp-action="Index" method="get">
-        <button class="btn btn-warning">CATEGORIES</button>
+        <button class="btn btn-outline-secondary">Categories</button>
     </form>
     <form asp-controller="PaymentSource" asp-action="Index" method="get">
-        <button class="btn btn-info">PAYMENT SOURCE</button>
+        <button class="btn btn-outline-secondary">Payment sources</button>
     </form>
+</div>
+
+@* ---------- Totals across all completed records ---------- *@
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-label">Completed records</div><div class="stat-value">@data.Records.Count</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-positive"><div class="stat-label">Total deposits</div><div class="stat-value">@data.TotalDeposits.ToString("C")</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-negative"><div class="stat-label">Total expenses</div><div class="stat-value">@data.TotalExpenses.ToString("C")</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card stat-savings"><div class="stat-label">Total saved</div><div class="stat-value">@data.TotalSaved.ToString("C")</div></div>
+    </div>
+</div>
+
+@* ---------- Drafts (incomplete records the user can resume) ---------- *@
+@if (data.Drafts.Any())
+{
+    <h2 class="h4 mb-3">Drafts</h2>
+    <div class="row g-3 mb-4">
+        @foreach (var d in data.Drafts)
+        {
+            <partial name="_RecordCard" model="d" />
+        }
+    </div>
+}
+
+@* ---------- Finance record history (completed records; open to view or edit) ---------- *@
+<h2 class="h4 mb-3">Finance record history</h2>
+@if (!data.Records.Any())
+{
+    <div class="empty-state">
+        <p class="mb-2">You have no completed finance records yet.</p>
+        <a asp-controller="FinanceRecord" asp-action="Index" class="btn btn-success">Start your first record</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var r in data.Records)
+        {
+            <partial name="_RecordCard" model="r" />
+        }
+    </div>
+}
+
+@* ---------- Deleted records (soft deleted; kept in the database, no actions) ---------- *@
+@if (data.Deleted.Any())
+{
+    <details class="mt-4">
+        <summary class="h5 text-muted">Deleted records (@data.Deleted.Count)</summary>
+        <div class="row g-3 mt-1">
+            @foreach (var x in data.Deleted)
+            {
+                <partial name="_RecordCard" model="x" />
+            }
+        </div>
+    </details>
+}
+</div>
+</div>
+
+@section Scripts {
+    <script src="~/js/tasks.js" asp-append-version="true"></script>
+}
     
 
 
-</div>
-<div class="dashboard-container">
-    <h2>VISUAL SUMMARY OF MONTHLY FINANCES</h2>
-    <div class="container-fluid">
-        <div class="border col-md-4">
-            <p>MONTHLY RECURRING BILLS</p>
-        </div>
-        <div class="border col-md-6">
-            <p>CATEGORY TOTALS</p>
-        </div>
-        <div class="border">
-            <p>SAVINGS GOALS/TOTALS</p>
-        </div>
-        <div class="border">
-            <p>INCOME TOTALS</p>
-        </div>
-        <div class="border">
-            <p>LINES OF CREDIT W/ TOTALS</p>
-        </div>
-    </div>
-</div>
+

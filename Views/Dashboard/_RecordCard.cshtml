@@ -1,0 +1,41 @@
+@model RavenFinance.Models.FinanceRecordSummary
+@{
+    // Card state drives colour and available actions: deleted (grey) > draft (yellow) > completed
+    string state = Model.IsDeleted ? "deleted" : (Model.IsComplete ? "complete" : "draft");
+}
+<div class="col-md-6 col-xl-4">
+    <div class="record-card record-@state">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="record-dates">@Model.DateStart.ToString("MMM d, yyyy") - @Model.DateEnd.ToString("MMM d, yyyy")</div>
+            @if (state == "deleted")
+            {
+                <span class="badge bg-secondary">Deleted</span>
+            }
+            else if (state == "draft")
+            {
+                <span class="badge bg-warning text-dark">Draft - incomplete</span>
+            }
+            else
+            {
+                <span class="badge bg-success">Completed</span>
+            }
+        </div>
+        <div class="record-net @(Model.NetTotal >= 0 ? "text-success" : "text-danger")">@Model.NetTotal.ToString("C")</div>
+        <div class="record-net-label">Net balance before savings</div>
+        <dl class="record-details">
+            <dt>Deposits</dt><dd class="text-success">@Model.DepositTotal.ToString("C")</dd>
+            <dt>Expenses</dt><dd class="text-danger">@Model.ExpenseTotal.ToString("C")</dd>
+            <dt>Saved</dt><dd>@Model.SavingsTotal.ToString("C")</dd>
+            <dt>Items</dt><dd>@Model.ItemCount</dd>
+        </dl>
+
+        @if (state != "deleted")
+        {
+            <div class="d-flex gap-2">
+                @* Drafts resume the process; completed records reopen for viewing and editing *@
+                <a asp-controller="FinanceRecord" asp-action="ReviewFinanceRecord" asp-route-financeRecordId="@Model.FinanceRecordId"
+                   class="btn @(state == "draft" ? "btn-warning" : "btn-outline-primary") flex-grow-1">@(state == "draft" ? "Resume draft" : "View / Edit")</a>
+            </div>
+        }
+    </div>
+</div>
