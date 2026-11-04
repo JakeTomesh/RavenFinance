@@ -1,0 +1,22 @@
+
+# Git repository
+.git
+.gitignore
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Existing .NET build output
+bin/
+obj/
+
+# Local environment files
+.env
+.env.*
+
+# Docker Compose overrides
+compose.override.yaml
+docker-compose.override.yml
+ravenfinance.env
